@@ -5,7 +5,7 @@ FlySystem Factories for PSR-11
 
 
 
-#Configuration
+# Configuration
 
 ```php
 <?php
@@ -70,10 +70,10 @@ return [
 
 ```
 
-##Adaptors
+## Adaptors
 Example configs for supported adaptors
 
-###Null/Test
+### Null/Test
 
 ```php
 <?php
@@ -92,7 +92,7 @@ return [
 FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
 
 
-###Local
+### Local
 
 ```php
 <?php
@@ -126,10 +126,10 @@ return [
 FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
 
 
-##Caches
+## Caches
 Example configs for supported caches
 
-###Memory/Test
+### Memory/Test
 
 ```php
 <?php
@@ -147,7 +147,7 @@ return [
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 
-###PSR-6
+### PSR-6
 
 ```php
 <?php
