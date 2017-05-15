@@ -12,7 +12,7 @@ use WShafer\PSR11FlySystem\Cache\MemoryCacheFactory;
  */
 class MemoryCacheFactoryTest extends TestCase
 {
-    public function testGetFactoryClassNamePSR6()
+    public function testInvoke()
     {
         $factory = new MemoryCacheFactory();
         $class = $factory([]);
