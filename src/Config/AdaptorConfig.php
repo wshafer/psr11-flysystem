@@ -15,7 +15,7 @@ class AdaptorConfig
         $this->config = $config;
     }
 
-    public function validateConfig($config)
+    protected function validateConfig($config)
     {
         if (empty($config)) {
             throw new MissingConfigException(

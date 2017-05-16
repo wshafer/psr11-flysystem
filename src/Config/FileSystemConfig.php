@@ -24,7 +24,7 @@ class FileSystemConfig
         $this->config = $config;
 
         if ($this->isManager()) {
-
+            $this->buildManagerFileSystemConfigs();
         }
     }
 
