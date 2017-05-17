@@ -15,12 +15,13 @@ use WShafer\PSR11FlySystem\Exception\UnknownPluginException;
 
 class FileSystemManager implements ContainerInterface
 {
-    protected $config = [];
+    /** @var MainConfig  */
+    protected $config;
 
-    /** @var AdaptorManager */
+    /** @var ContainerInterface */
     protected $adaptorManager;
 
-    /** @var CacheManager */
+    /** @var ContainerInterface */
     protected $cacheManager;
 
     /** @var Filesystem[]|MountManager[] */
@@ -32,14 +33,14 @@ class FileSystemManager implements ContainerInterface
     /**
      * Manager constructor.
      * @param MainConfig         $config
-     * @param AdaptorManager     $adaptorManager
-     * @param CacheManager       $cacheManager
+     * @param ContainerInterface $adaptorManager
+     * @param ContainerInterface $cacheManager
      * @param ContainerInterface $container
      */
     public function __construct(
         MainConfig $config,
-        AdaptorManager $adaptorManager,
-        CacheManager $cacheManager,
+        ContainerInterface $adaptorManager,
+        ContainerInterface $cacheManager,
         ContainerInterface $container
     ) {
         $this->config = $config;
@@ -74,7 +75,7 @@ class FileSystemManager implements ContainerInterface
         $fileSystems = [];
 
         foreach ($fileSystemConfig->getFileSystems() as $name => $managerFileSystemConfig) {
-            $fileSystems[] = $this->getFileSystem($name, $managerFileSystemConfig);
+            $fileSystems[$name] = $this->getFileSystem($name, $managerFileSystemConfig);
         }
 
         $manager = new MountManager($fileSystems);
@@ -113,10 +114,6 @@ class FileSystemManager implements ContainerInterface
      */
     protected function setPlugins($filesystem, array $plugins = [])
     {
-        if (empty($plugins)) {
-            return;
-        }
-
         foreach ($plugins as $plugin) {
             $this->addPlugin($filesystem, $plugin);
         }
@@ -140,10 +137,5 @@ class FileSystemManager implements ContainerInterface
     public function has($id)
     {
         return $this->config->hasFileSystemConfig($id);
-    }
-
-    public function getConfig()
-    {
-        return $this->config;
     }
 }
