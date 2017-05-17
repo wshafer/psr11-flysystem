@@ -11,7 +11,8 @@ use WShafer\PSR11FlySystem\MapperInterface;
 
 class CacheManager implements ContainerInterface
 {
-    protected $config = [];
+    /** @var MainConfig */
+    protected $config;
 
     /** @var MapperInterface */
     protected $cacheMapper;

@@ -51,7 +51,7 @@ class FileSystemConfig
     /**
      * Get the adaptor
      *
-     * @return AdaptorConfig
+     * @return string
      */
     public function getAdaptor()
     {
@@ -61,7 +61,7 @@ class FileSystemConfig
     /**
      * Get the cache
      *
-     * @return CacheConfig|string
+     * @return string
      */
     public function getCache()
     {
