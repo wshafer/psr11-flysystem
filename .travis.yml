@@ -15,4 +15,5 @@ script:
 
 after_success:
   - travis_retry php vendor/bin/coveralls -v -x clover.xml
+  - bash <(curl -s https://codecov.io/bash)
 
