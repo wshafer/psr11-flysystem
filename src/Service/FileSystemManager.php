@@ -74,8 +74,8 @@ class FileSystemManager implements ContainerInterface
 
         $fileSystems = [];
 
-        foreach ($fileSystemConfig->getFileSystems() as $name => $managerFileSystemConfig) {
-            $fileSystems[$name] = $this->getFileSystem($name, $managerFileSystemConfig);
+        foreach ($fileSystemConfig->getFileSystems() as $name => $managerSystemConfig) {
+            $fileSystems[$name] = $this->getFileSystem($name, $managerSystemConfig);
         }
 
         $manager = new MountManager($fileSystems);
