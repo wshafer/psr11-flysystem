@@ -6,6 +6,7 @@ namespace WShafer\PSR11FlySystem\Service;
 use League\Flysystem\Cached\CacheInterface;
 use Psr\Container\ContainerInterface;
 use WShafer\PSR11FlySystem\Config\MainConfig;
+use WShafer\PSR11FlySystem\Exception\UnknownCacheException;
 use WShafer\PSR11FlySystem\MapperInterface;
 
 class CacheManager implements ContainerInterface
@@ -41,6 +42,12 @@ class CacheManager implements ContainerInterface
      */
     public function get($id)
     {
+        if (!$this->has($id)) {
+            throw new UnknownCacheException(
+                'Unable to locate cache '.$id.'.  Please check your configuration.'
+            );
+        }
+
         $cacheConfig = $this->getConfig()->getCacheConfig($id);
         return $this->cacheMapper->get(
             $cacheConfig->getType(),

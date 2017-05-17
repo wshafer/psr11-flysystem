@@ -41,7 +41,6 @@ class AdaptorManager implements ContainerInterface
 
     /**
      * @param string $id
-     *
      * @return AdapterInterface
      */
     public function get($id)
@@ -63,13 +62,12 @@ class AdaptorManager implements ContainerInterface
         return $this->adaptors[$id];
     }
 
+    /**
+     * @param string $id
+     * @return bool
+     */
     public function has($id)
     {
         return $this->config->hasAdaptorConfig($id);
-    }
-
-    public function getConfig()
-    {
-        return $this->config;
     }
 }

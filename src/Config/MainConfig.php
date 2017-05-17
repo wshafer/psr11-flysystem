@@ -49,27 +49,46 @@ class MainConfig
         }
     }
 
-    public function getFileSystemConfig($fileSystem) : FileSystemConfig {
+    /**
+     * @param $fileSystem
+     * @return FileSystemConfig|null
+     */
+    public function getFileSystemConfig($fileSystem)
+    {
         return $this->fileSystems[$fileSystem] ?? null;
     }
 
-    public function getAdaptorConfig($adaptor) : AdaptorConfig {
+    /**
+     * @param $adaptor
+     * @return AdaptorConfig|null
+     */
+    public function getAdaptorConfig($adaptor)
+    {
         return $this->adaptors[$adaptor] ?? null;
     }
 
-    public function getCacheConfig($cache) : CacheConfig {
+    /**
+     * @param $cache
+     *
+     * @return CacheConfig|null
+     */
+    public function getCacheConfig($cache)
+    {
         return $this->cache[$cache] ?? null;
     }
 
-    public function hasFileSystemConfig($fileSystem) : bool {
+    public function hasFileSystemConfig($fileSystem) : bool
+    {
         return key_exists($fileSystem, $this->fileSystems);
     }
 
-    public function hasAdaptorConfig($adaptor) : bool {
+    public function hasAdaptorConfig($adaptor) : bool
+    {
         return key_exists($adaptor, $this->adaptors);
     }
 
-    public function hasCacheConfig($cache) : bool {
+    public function hasCacheConfig($cache) : bool
+    {
         return key_exists($cache, $this->cache);
     }
 

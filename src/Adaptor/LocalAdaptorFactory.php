@@ -15,11 +15,6 @@ class LocalAdaptorFactory implements FactoryInterface
         $linkHandling = $options['linkBehavior'] ?? Local::DISALLOW_LINKS;
         $permissions = $options['permissions'] ?? [];
 
-        return new Local(
-            $root,
-            $writeFlags,
-            $linkHandling,
-            $permissions
-        );
+        return new Local($root, $writeFlags, $linkHandling, $permissions);
     }
 }
