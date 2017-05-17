@@ -1,5 +1,6 @@
-[![Coverage Status](https://coveralls.io/repos/github/wshafer/psr11-flysystem/badge.svg?branch=master)](https://coveralls.io/github/wshafer/psr11-flysystem?branch=master)
 [![codecov](https://codecov.io/gh/wshafer/psr11-flysystem/branch/master/graph/badge.svg)](https://codecov.io/gh/wshafer/psr11-flysystem)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/wshafer/psr11-flysystem/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/wshafer/psr11-flysystem/?branch=master)
+[![Build Status](https://travis-ci.org/wshafer/psr11-flysystem.svg?branch=master)](https://travis-ci.org/wshafer/psr11-flysystem)
 # PSR-11 FlySystem
 
 FlySystem Factories for PSR-11
