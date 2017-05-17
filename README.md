@@ -5,11 +5,118 @@
 
 FlySystem Factories for PSR-11
 
-
+- [Configuration](#configuration)
+    - [Adaptors](#adaptors)
+        - [Null / Test](#nulltest)
+        - [Local](#local)
+    - [Caches](#caches)
+        - [Memory / Test](#memorytest)
+        - [PSR-6](#psr-6)
+    - [Example](#full-example)
 
 
 # Configuration
 
+### Adaptors
+Example configs for supported adaptors
+
+#### Null/Test
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'local' => [
+                'type' => 'null',
+                'options' => [], #No options available
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
+
+
+#### Local
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'local' => [
+                'type' => 'local',
+                'options' => [
+                    'root' => '/path/to/root', # Path on local filesystem
+                    'writeFlags' => LOCK_EX, # PHP flags.  See: file_get_contents for more info
+                    'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, #Link behavior
+                    'permissions' => [
+                        'file' => [
+                            'public' => 0744,
+                            'private' => 0700,
+                        ],
+                        'dir' => [
+                            'public' => 0755,
+                            'private' => 0700,
+                        ]    
+                    ]
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
+
+
+## Caches
+Example configs for supported caches
+
+#### Memory/Test
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'caches' => [
+            'local' => [
+                'type' => 'memory',
+                'options' => [], #No options available
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
+
+#### PSR-6
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'caches' => [
+            'local' => [
+                'type' => 'psr6',
+                'options' => [
+                    'service' => 'my_psr6_service_from_container', # Service to be used from the container
+                    'key' => 'my_key_', # Cache Key
+                    'ttl' => 3000 # Expires
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: Unknown
+
+#### Full Example
 ```php
 <?php
 
@@ -72,103 +179,3 @@ return [
 ];
 
 ```
-
-## Adaptors
-Example configs for supported adaptors
-
-### Null/Test
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'adaptors' => [
-            'local' => [
-                'type' => 'null',
-                'options' => [], #No options available
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
-
-
-### Local
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'adaptors' => [
-            'local' => [
-                'type' => 'local',
-                'options' => [
-                    'root' => '/path/to/root', # Path on local filesystem
-                    'writeFlags' => LOCK_EX, # PHP flags.  See: file_get_contents for more info
-                    'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, #Link behavior
-                    'permissions' => [
-                        'file' => [
-                            'public' => 0744,
-                            'private' => 0700,
-                        ],
-                        'dir' => [
-                            'public' => 0755,
-                            'private' => 0700,
-                        ]    
-                    ]
-                ],
-            ],
-        ],
-    ],
-];
-```
-
-FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
-
-
-## Caches
-Example configs for supported caches
-
-### Memory/Test
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'local' => [
-                'type' => 'memory',
-                'options' => [], #No options available
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
-
-### PSR-6
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'local' => [
-                'type' => 'psr6',
-                'options' => [
-                    'service' => 'my_psr6_service_from_container', # Service to be used from the container
-                    'key' => 'my_key_', # Cache Key
-                    'ttl' => 3000 # Expires
-                ],
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: Unknown
-
