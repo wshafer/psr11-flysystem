@@ -34,15 +34,13 @@ class MainConfig
             );
         }
 
-        if (empty($config['flysystem']['adaptors']))
-        {
+        if (empty($config['flysystem']['adaptors'])) {
             throw new MissingConfigException(
                 'No config key of "adaptors" found in flysystem config array.'
             );
         }
 
-        if (empty($config['flysystem']['fileSystems']))
-        {
+        if (empty($config['flysystem']['fileSystems'])) {
             throw new MissingConfigException(
                 'No config key of "adaptors" found in flysystem config array.'
             );

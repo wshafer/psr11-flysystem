@@ -22,5 +22,4 @@ class PluginStub implements PluginInterface
     {
         return true;
     }
-
 }
