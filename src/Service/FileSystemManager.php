@@ -56,17 +56,17 @@ class FileSystemManager implements ContainerInterface
      */
     public function get($id)
     {
-        if (!$this->has($id)) {
-            throw new UnknownFileSystemException(
-                'Unable to locate file system '.$id.'.  Please check your configuration.'
-            );
-        }
-
         if (key_exists($id, $this->systems)) {
             return $this->systems[$id];
         }
 
         $fileSystemConfig = $this->config->getFileSystemConfig($id);
+
+        if (!$fileSystemConfig) {
+            throw new UnknownFileSystemException(
+                'Unable to locate file system '.$id.'.  Please check your configuration.'
+            );
+        }
 
         if (!$fileSystemConfig->isManager()) {
             return $this->getFileSystem($id, $fileSystemConfig);
@@ -105,7 +105,7 @@ class FileSystemManager implements ContainerInterface
         }
 
         $this->systems[$id] = $fileSystem;
-        return $this->systems[$id];
+        return $fileSystem;
     }
 
     /**

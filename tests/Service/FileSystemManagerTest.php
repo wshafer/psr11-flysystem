@@ -91,11 +91,6 @@ class FileSystemManagerTest extends TestCase
     public function testGetSingleFileSystem()
     {
         $this->mockConfig->expects($this->once())
-            ->method('hasFileSystemConfig')
-            ->with('IDo')
-            ->willReturn(true);
-
-        $this->mockConfig->expects($this->once())
             ->method('getFileSystemConfig')
             ->with('IDo')
             ->willReturn($this->mockFileSystemConfig);
@@ -138,11 +133,6 @@ class FileSystemManagerTest extends TestCase
 
     public function testGetNoPlugins()
     {
-        $this->mockConfig->expects($this->once())
-            ->method('hasFileSystemConfig')
-            ->with('IDo')
-            ->willReturn(true);
-
         $this->mockConfig->expects($this->once())
             ->method('getFileSystemConfig')
             ->with('IDo')
@@ -187,11 +177,6 @@ class FileSystemManagerTest extends TestCase
         $this->expectException(UnknownPluginException::class);
 
         $this->mockConfig->expects($this->once())
-            ->method('hasFileSystemConfig')
-            ->with('IDo')
-            ->willReturn(true);
-
-        $this->mockConfig->expects($this->once())
             ->method('getFileSystemConfig')
             ->with('IDo')
             ->willReturn($this->mockFileSystemConfig);
@@ -231,12 +216,6 @@ class FileSystemManagerTest extends TestCase
 
     public function testGetReturnsExistingService()
     {
-        // Will be called each time
-        $this->mockConfig->expects($this->exactly(2))
-            ->method('hasFileSystemConfig')
-            ->with('IDo')
-            ->willReturn(true);
-
         // Only called on the first request
         $this->mockConfig->expects($this->once())
             ->method('getFileSystemConfig')
@@ -292,22 +271,12 @@ class FileSystemManagerTest extends TestCase
     public function testGetNotFoundException()
     {
         $this->expectException(UnknownFileSystemException::class);
-        $this->mockConfig->expects($this->once())
-            ->method('hasFileSystemConfig')
-            ->with('IDo')
-            ->willReturn(false);
-
         $this->manager->get('IDo');
     }
 
     // Manager Tests
     public function testGetManager()
     {
-        $this->mockConfig->expects($this->once())
-            ->method('hasFileSystemConfig')
-            ->with('IDo')
-            ->willReturn(true);
-
         $this->mockConfig->expects($this->once())
             ->method('getFileSystemConfig')
             ->with('IDo')
