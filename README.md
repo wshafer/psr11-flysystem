@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/wshafer/psr11-flysystem/badge.svg?branch=master)](https://coveralls.io/github/wshafer/psr11-flysystem?branch=master)
+
 # PSR-11 FlySystem
 
 FlySystem Factories for PSR-11
