@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use WShafer\PSR11FlySystem\Adaptor\AdaptorMapper;
 use WShafer\PSR11FlySystem\Adaptor\AzureAdapterFactory;
+use WShafer\PSR11FlySystem\Adaptor\DropBoxAdapterFactory;
 use WShafer\PSR11FlySystem\Adaptor\LocalAdaptorFactory;
 use WShafer\PSR11FlySystem\Adaptor\NullAdaptorFactory;
 use WShafer\PSR11FlySystem\Adaptor\S3AdapterFactory;
@@ -16,6 +17,14 @@ use WShafer\PSR11FlySystem\Adaptor\S3AdapterFactory;
  */
 class AdaptorMapperTest extends TestCase
 {
+    public function testGetFactoryClassNameDropBox()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $adaptorMapper = new AdaptorMapper($container);
+        $result = $adaptorMapper->getFactoryClassName('dropbox');
+        $this->assertEquals(DropBoxAdapterFactory::class, $result);
+    }
+
     public function testGetFactoryClassNameS3()
     {
         $container = $this->createMock(ContainerInterface::class);

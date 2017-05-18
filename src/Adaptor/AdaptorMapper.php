@@ -14,6 +14,8 @@ class AdaptorMapper extends MapperAbstract
         }
 
         switch ($type) {
+            case 'dropbox':
+                return DropBoxAdapterFactory::class;
             case 's3':
                 return S3AdapterFactory::class;
             case 'azure':

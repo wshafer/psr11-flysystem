@@ -13,6 +13,7 @@ FlySystem Factories for PSR-11
         - [Local](#local)
         - [Azure](#azure)
         - [AWS S3](#aws-s3)
+        - [DropBox](#dropbox)
     - [Caches](#caches)
         - [Memory / Test](#memorytest)
         - [PSR-6](#psr-6)
@@ -142,6 +143,33 @@ return [
 ];
 ```
 FlySystem Docs: [Aws S3 Adapter - SDK V3](https://flysystem.thephpleague.com/adapter/aws-s3-v3/)
+
+#### DropBox
+
+**Install**
+```bash
+composer require spatie/flysystem-dropbox
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 'dropbox',
+                'options' => [
+                    'token'   => 'my-token',
+                    'prefix'  => 'prefix', #optional
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [DropBox](https://flysystem.thephpleague.com/adapter/dropbox/)
 
 ## Caches
 Example configs for supported caches
