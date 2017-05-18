@@ -36,7 +36,7 @@ composer require wshafer/PSR11FlySystem
 Fly System uses three types of services that will each need to be configured.
 
 - [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
-and Azure container, S3, Local, Memory, etc.
+an Azure container, S3, Local, Memory, etc.
 
 - [Caches](#caches) : Cache layer to optimize performance.  While this is optional, this package
 will use a memory cache by default if none is provide.
@@ -84,8 +84,8 @@ return [
                     'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, #Link behavior
                     'permissions' => [
                         'file' => [
-                            'public' => 0744,
-                            'private' => 0700,
+                            'public' => 0644,
+                            'private' => 0600,
                         ],
                         'dir' => [
                             'public' => 0755,
