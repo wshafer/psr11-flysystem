@@ -12,7 +12,7 @@ fi
 # Install dependencies
 add-apt-repository ppa:ondrej/php
 apt-get update
-apt-get install -y git curl php7.1 php7.1-bcmath php7.1-bz2 php7.1-cli php7.1-curl php7.1-intl php7.1-json php7.1-mbstring php7.1-opcache php7.1-soap php7.1-sqlite3 php7.1-xml php7.1-xsl php7.1-zip libapache2-mod-php7.1
+apt-get install -y git curl ruby php7.1 php7.1-bcmath php7.1-bz2 php7.1-cli php7.1-curl php7.1-intl php7.1-json php7.1-mbstring php7.1-opcache php7.1-soap php7.1-sqlite3 php7.1-xml php7.1-xsl php7.1-zip libapache2-mod-php7.1
 
 if [ -e /usr/local/bin/composer ]; then
     /usr/local/bin/composer self-update

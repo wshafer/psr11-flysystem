@@ -5,15 +5,24 @@
 
 FlySystem Factories for PSR-11
 
+#### Table of Contents
+- [Installation](#installation)
 - [Configuration](#configuration)
     - [Adaptors](#adaptors)
         - [Null / Test](#nulltest)
         - [Local](#local)
+        - [Azure](#azure)
+        - [AWS S3](#aws-s3)
     - [Caches](#caches)
         - [Memory / Test](#memorytest)
         - [PSR-6](#psr-6)
     - [Example](#full-example)
 
+# Installation
+
+```bash
+composer require wshafer/PSR11FlySystem
+```
 
 # Configuration
 
@@ -28,7 +37,7 @@ Example configs for supported adaptors
 return [
     'flysystem' => [
         'adaptors' => [
-            'local' => [
+            'myAdaptorName' => [
                 'type' => 'null',
                 'options' => [], #No options available
             ],
@@ -47,7 +56,7 @@ FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-t
 return [
     'flysystem' => [
         'adaptors' => [
-            'local' => [
+            'myAdaptorName' => [
                 'type' => 'local',
                 'options' => [
                     'root' => '/path/to/root', # Path on local filesystem
@@ -72,6 +81,66 @@ return [
 
 FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
 
+#### Azure
+
+**Install**
+```bash
+composer require league/flysystem-azure
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 'azure',
+                'options' => [
+                    'accountName' => 'account-name',
+                    'apiKey' => 'api-key',
+                    'container' => 'container-name',
+                    'prefix' => 'prefix_',  # Optional
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Azure Adaptor](https://flysystem.thephpleague.com/adapter/azure/)
+
+#### AWS S3
+_Note: AWS V2 is not supported in this package_
+
+**Install**
+```bash
+composer require league/flysystem-aws-s3-v3
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 's3',
+                'options' => [
+                    'key' => 'aws-key',
+                    'secret'  => 'aws-secret',
+                    'region'  => 'us-east-1',
+                    'bucket'  => 'bucket-name',
+                    'prefix'  => 'some/prefix', #optional
+                    'version' => 'latest' # Default: 'latest'
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Aws S3 Adapter - SDK V3](https://flysystem.thephpleague.com/adapter/aws-s3-v3/)
 
 ## Caches
 Example configs for supported caches
@@ -179,3 +248,18 @@ return [
 ];
 
 ```
+
+# Usage
+
+```php
+<?php
+
+# Get the file system manager from the container
+$fileSystemManager = $container->get(\WShafer\PSR11FlySystem\Service\FileSystemManager::class);
+
+# Get the FlySystem FileSystem Or Manager
+$fileSystem = $fileSystemManager->get('local');
+$manager = $fileSystemManager->get('manager');
+```
+
+Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)

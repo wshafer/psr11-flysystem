@@ -6,14 +6,32 @@ namespace WShafer\PSR11FlySystem\Test\Adaptor;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use WShafer\PSR11FlySystem\Adaptor\AdaptorMapper;
+use WShafer\PSR11FlySystem\Adaptor\AzureAdapterFactory;
 use WShafer\PSR11FlySystem\Adaptor\LocalAdaptorFactory;
 use WShafer\PSR11FlySystem\Adaptor\NullAdaptorFactory;
+use WShafer\PSR11FlySystem\Adaptor\S3AdapterFactory;
 
 /**
  * @covers \WShafer\PSR11FlySystem\Adaptor\AdaptorMapper
  */
 class AdaptorMapperTest extends TestCase
 {
+    public function testGetFactoryClassNameS3()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $adaptorMapper = new AdaptorMapper($container);
+        $result = $adaptorMapper->getFactoryClassName('s3');
+        $this->assertEquals(S3AdapterFactory::class, $result);
+    }
+
+    public function testGetFactoryClassNameAzure()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $adaptorMapper = new AdaptorMapper($container);
+        $result = $adaptorMapper->getFactoryClassName('azure');
+        $this->assertEquals(AzureAdapterFactory::class, $result);
+    }
+
     public function testGetFactoryClassNameLocal()
     {
         $container = $this->createMock(ContainerInterface::class);
