@@ -16,11 +16,7 @@ class AzureAdapterFactory implements FactoryInterface
         $container = $options['container'] ?? null;
         $prefix = $options['prefix'] ?? null;
 
-        $endpoint = sprintf(
-            'DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s',
-            $accountName,
-            $apiKey
-        );
+        $endpoint = sprintf('DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s', $accountName, $apiKey);
 
         $proxy = ServicesBuilder::getInstance()->createBlobService($endpoint);
         return new AzureAdapter($proxy, $container, $prefix);

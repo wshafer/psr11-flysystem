@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WShafer\PSR11FlySystem\Adaptor\S3AdapterFactory;
 
 /**
- * @covers \WShafer\PSR11FlySystem\Adaptor\AzureAdapterFactory
+ * @covers \WShafer\PSR11FlySystem\Adaptor\S3AdapterFactory
  */
 class S3AdaptorFactoryTest extends TestCase
 {
