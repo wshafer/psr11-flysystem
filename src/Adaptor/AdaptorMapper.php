@@ -7,6 +7,9 @@ use WShafer\PSR11FlySystem\MapperAbstract;
 
 class AdaptorMapper extends MapperAbstract
 {
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function getFactoryClassName(string $type)
     {
         if (class_exists($type)) {
