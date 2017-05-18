@@ -38,5 +38,11 @@
         "psr-4": {
             "WShafer\\PSR11FlySystem\\Test\\": "tests/"
         }
+    },
+
+    "extra": {
+        "zf": {
+            "config-provider": "WShafer\\PSR11FlySystem\\ConfigProvider"
+        }
     }
 }
