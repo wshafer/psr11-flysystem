@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/wshafer/psr11-flysystem.svg?branch=master)](https://travis-ci.org/wshafer/psr11-flysystem)
 # PSR-11 FlySystem
 
-FlySystem Factories for PSR-11
+[FlySystem](https://flysystem.thephpleague.com/) Factories for PSR-11
 
 #### Table of Contents
 - [Installation](#installation)
@@ -21,6 +21,7 @@ FlySystem Factories for PSR-11
     - [Caches](#caches)
         - [Memory / Test](#memorytest)
         - [PSR-6](#psr-6)
+    - [File System](#file-system)
     - [Example](#full-example)
 - [Usage](#usage)
 
@@ -31,6 +32,20 @@ composer require wshafer/PSR11FlySystem
 ```
 
 # Configuration
+
+Fly System uses three types of services that will each need to be configured.
+
+- [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
+and Azure container, S3, Local, Memory, etc.
+
+- [Caches](#caches) : Cache layer to optimize performance.  While this is optional, this package
+will use a memory cache by default if none is provide.
+
+- [File System](#file-system) :  This will configure the final FlySystem File System that
+you will actually use to do the work.   This uses the previous two configurations to get
+you a fully functioning File System to work with.   In addition you can also configure
+a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
+file systems that need to interact with one another.
 
 ### Adaptors
 Example configs for supported adaptors
@@ -331,6 +346,42 @@ return [
 ```
 FlySystem Docs: Unknown 
 
+### File System
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'fileSystems' => [
+            # Array Keys are the file systems identifiers
+            'local' => [
+                'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
+                'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
+                'plugins' => [] # User defined plugins to be injected into the file system
+            ],
+            
+            # Mount Manager Config
+            'manager' => [
+                'adaptor' => 'manager',
+                'fileSystems' => [
+                    'local' => [
+                        'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
+                        'cache' => 'cache_one', # PSR-6 pre-configured service
+                        'plugins' => [] # User defined plugins to be injected into the file system
+                    ],
+                    
+                    'anotherFileSystem' => [
+                        'adaptor' => 'adaptor_two', # Adaptor name from adaptor configuration
+                        'cache' => 'cache_two', # PSR-6 pre-configured service
+                        'plugins' => [] # User defined plugins to be injected into the file system
+                    ],
+                ],
+            ],
+        ],
+    ],
+];
+```
+
 ### Full Example
 ```php
 <?php
@@ -352,7 +403,17 @@ return [
         
         'caches' => [
             # Array Keys are the names used for the cache
-            'my_cache_service' => [
+            'cache_one' => [
+                'type' => 'psr6',
+                # Cache specific options.  See caches below
+                'options' => [
+                    'service' => 'my_psr6_service_from_container',
+                    'key' => 'my_key_',
+                    'ttl' => 3000
+                ], 
+            ],
+            
+            'cache_two' => [
                 'type' => 'psr6',
                 # Cache specific options.  See caches below
                 'options' => [
@@ -368,7 +429,7 @@ return [
             # Array Keys are the file systems identifiers
             'local' => [
                 'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                'cache' => 'PSR6\Cache\Service', # PSR-6 pre-configured service
+                'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
                 'plugins' => [] # User defined plugins to be injected into the file system
             ],
             
@@ -378,18 +439,18 @@ return [
                 'fileSystems' => [
                     'local' => [
                         'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                        'cache' => 'PSR6\Cache\Service', # PSR-6 pre-configured service
+                        'cache' => 'cache_one', # PSR-6 pre-configured service
                         'plugins' => [] # User defined plugins to be injected into the file system
                     ],
                     
                     'anotherFileSystem' => [
                         'adaptor' => 'adaptor_two', # Adaptor name from adaptor configuration
-                        'cache' => 'PSR6\Cache\Service', # PSR-6 pre-configured service
+                        'cache' => 'cache_two', # PSR-6 pre-configured service
                         'plugins' => [] # User defined plugins to be injected into the file system
                     ],
-                ]
-            ]
-        ]
+                ],
+            ],
+        ],
     ],
 ];
 
