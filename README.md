@@ -17,6 +17,7 @@ FlySystem Factories for PSR-11
         - [Memory / Test](#memorytest)
         - [PSR-6](#psr-6)
     - [Example](#full-example)
+- [Usage](#usage)
 
 # Installation
 
