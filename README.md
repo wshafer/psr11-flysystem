@@ -28,7 +28,7 @@
 # Installation
 
 ```bash
-composer require wshafer/PSR11FlySystem
+composer require wshafer/psr11-flysystem
 ```
 
 # Configuration
