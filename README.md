@@ -12,6 +12,9 @@ FlySystem Factories for PSR-11
         - [Null / Test](#nulltest)
         - [Local](#local)
         - [FTP](#ftp)
+        - [SFTP](#sftp)
+        - [Memory](#memory)
+        - [Zip Archive](#zip-archive)
         - [Azure](#azure)
         - [AWS S3](#aws-s3)
         - [DropBox](#dropbox)
@@ -112,6 +115,90 @@ return [
 ```
 
 FlySystem Docs: [FTP](https://flysystem.thephpleague.com/adapter/ftp/)
+
+#### SFTP
+**Install**
+```bash
+composer require league/flysystem-sftp
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 'ftp',
+                'options' => [
+                    'host' => 'example.com',
+                    'port' => 21,
+                    'username' => 'username',
+                    'password' => 'password',
+                    'privateKey' => 'path/to/or/contents/of/privatekey',
+                    'root' => '/path/to/root',
+                    'timeout' => 10,
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+FlySystem Docs: [SFTP](https://flysystem.thephpleague.com/adapter/sftp/)
+
+#### Memory
+
+**Install**
+```bash
+composer require league/flysystem-memory
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 'memory',
+                'options' => [],
+            ],
+        ],
+    ],
+];
+```
+
+FlySystem Docs: [Memory](https://flysystem.thephpleague.com/adapter/memory/)
+
+#### Zip Archive
+
+**Install**
+```bash
+composer require league/flysystem-ziparchive
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 'zip',
+                'options' => [
+                    'path' => '/some/path/to/file.zip'    
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+FlySystem Docs: [Zip Archive](https://flysystem.thephpleague.com/adapter/zip-archive/)
 
 #### Azure
 
