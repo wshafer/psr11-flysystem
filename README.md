@@ -11,6 +11,7 @@ FlySystem Factories for PSR-11
     - [Adaptors](#adaptors)
         - [Null / Test](#nulltest)
         - [Local](#local)
+        - [FTP](#ftp)
         - [Azure](#azure)
         - [AWS S3](#aws-s3)
         - [DropBox](#dropbox)
@@ -49,7 +50,6 @@ return [
 ```
 FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
 
-
 #### Local
 
 ```php
@@ -82,6 +82,36 @@ return [
 ```
 
 FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
+
+#### FTP
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myAdaptorName' => [
+                'type' => 'ftp',
+                'options' => [
+                    'host' => 'ftp.example.com',
+                    'username' => 'username',
+                    'password' => 'password',
+                
+                    /** optional config settings */
+                    'port' => 21,
+                    'root' => '/path/to/root',
+                    'passive' => true,
+                    'ssl' => true,
+                    'timeout' => 30,
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+FlySystem Docs: [FTP](https://flysystem.thephpleague.com/adapter/ftp/)
 
 #### Azure
 

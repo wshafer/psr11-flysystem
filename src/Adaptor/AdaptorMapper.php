@@ -20,6 +20,8 @@ class AdaptorMapper extends MapperAbstract
                 return S3AdapterFactory::class;
             case 'azure':
                 return AzureAdapterFactory::class;
+            case 'ftp':
+                return FtpAdaptorFactory::class;
             case 'local':
                 return LocalAdaptorFactory::class;
             case 'null':
