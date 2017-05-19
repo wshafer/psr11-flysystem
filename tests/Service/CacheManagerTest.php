@@ -6,6 +6,7 @@ namespace WShafer\PSR11FlySystem\Test\Service;
 use League\Flysystem\Cached\CacheInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use WShafer\PSR11FlySystem\Adaptor\MemoryAdaptorFactory;
 use WShafer\PSR11FlySystem\Config\CacheConfig;
 use WShafer\PSR11FlySystem\Config\MainConfig;
 use WShafer\PSR11FlySystem\Exception\UnknownCacheException;
@@ -106,6 +107,34 @@ class CacheManagerTest extends TestCase
         $this->mockMapper->expects($this->once())
             ->method('get')
             ->with($type, $options)
+            ->willReturn($this->mockCache);
+
+        $adaptor = $this->manager->get($name);
+
+        $this->assertEquals($this->mockCache, $adaptor);
+    }
+
+    public function testGetDefault()
+    {
+        $name = 'default';
+
+        $this->mockConfig->expects($this->never())
+            ->method('hasCacheConfig')
+            ->with($name);
+
+        $this->mockConfig->expects($this->never())
+            ->method('getCacheConfig')
+            ->with($name);
+
+        $this->mockCacheConfig->expects($this->never())
+            ->method('getType');
+
+        $this->mockCacheConfig->expects($this->never())
+            ->method('getOptions');
+
+        $this->mockMapper->expects($this->once())
+            ->method('get')
+            ->with('memory', [])
             ->willReturn($this->mockCache);
 
         $adaptor = $this->manager->get($name);

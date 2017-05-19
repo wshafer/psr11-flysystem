@@ -72,6 +72,13 @@ class MainConfigTest extends TestCase
     {
     }
 
+    public function testConstructorMissingCacheConfigShouldNotError()
+    {
+        unset($this->settings['flysystem']['caches']);
+        $config = new MainConfig($this->settings);
+        $this->assertEmpty($config->getCacheConfig('cacheOne'));
+    }
+
     public function testHasAdaptorConfig()
     {
         $this->assertTrue(

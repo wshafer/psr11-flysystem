@@ -43,6 +43,10 @@ class CacheManager implements ContainerInterface
      */
     public function get($id)
     {
+        if ($id == 'default') {
+            return $this->cacheMapper->get('memory', []);
+        }
+
         if (!$this->has($id)) {
             throw new UnknownCacheException(
                 'Unable to locate cache '.$id.'.  Please check your configuration.'

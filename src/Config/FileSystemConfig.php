@@ -65,7 +65,7 @@ class FileSystemConfig
      */
     public function getCache()
     {
-        return $this->config['cache'] ?? 'memory';
+        return $this->config['cache'] ?? 'default';
     }
 
     /**
