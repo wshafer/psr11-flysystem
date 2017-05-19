@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WShafer\PSR11FlySystem\Adaptor\SftpAdaptorFactory;
 
 /**
- * @covers \WShafer\PSR11FlySystem\Adaptor\FtpAdaptorFactory
+ * @covers \WShafer\PSR11FlySystem\Adaptor\SftpAdaptorFactory
  */
 class SftpAdaptorFactoryTest extends TestCase
 {
