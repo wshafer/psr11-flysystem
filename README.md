@@ -44,7 +44,6 @@ Below are some specific container examples to get you started
 
 ### Pimple Example
 ```php
-
 // Create Container
 $container = new \Interop\Container\Pimple\PimpleInterop(
     null,
