@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Service;
+namespace WShafer\PSR11FlySystem;
 
 use League\Flysystem\Cached\CachedAdapter;
 use League\Flysystem\Filesystem;
@@ -13,7 +13,7 @@ use WShafer\PSR11FlySystem\Config\MainConfig;
 use WShafer\PSR11FlySystem\Exception\UnknownFileSystemException;
 use WShafer\PSR11FlySystem\Exception\UnknownPluginException;
 
-class FileSystemManager implements ContainerInterface
+class FlySystemManager implements ContainerInterface
 {
     /** @var MainConfig  */
     protected $config;

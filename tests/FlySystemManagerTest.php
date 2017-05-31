@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Test\Service;
+namespace WShafer\PSR11FlySystem\Test;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Cached\CacheInterface;
@@ -14,10 +14,10 @@ use WShafer\PSR11FlySystem\Config\FileSystemConfig;
 use WShafer\PSR11FlySystem\Config\MainConfig;
 use WShafer\PSR11FlySystem\Exception\UnknownFileSystemException;
 use WShafer\PSR11FlySystem\Exception\UnknownPluginException;
-use WShafer\PSR11FlySystem\Service\FileSystemManager;
+use WShafer\PSR11FlySystem\FlySystemManager;
 use WShafer\PSR11FlySystem\Test\Stub\PluginStub;
 
-class FileSystemManagerTest extends TestCase
+class FlySystemManagerTest extends TestCase
 {
     /** @var \PHPUnit_Framework_MockObject_MockObject|MainConfig */
     protected $mockConfig;
@@ -37,7 +37,7 @@ class FileSystemManagerTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|PluginInterface */
     protected $mockPlugin;
 
-    /** @var  FileSystemManager */
+    /** @var  FlySystemManager */
     protected $manager;
 
     public function setup()
@@ -55,13 +55,13 @@ class FileSystemManagerTest extends TestCase
         $this->mockCache = $this->createMock(CacheInterface::class);
         $this->mockPlugin = new PluginStub();
 
-        $this->manager = new FileSystemManager(
+        $this->manager = new FlySystemManager(
             $this->mockConfig,
             $this->mockContainer,
             $this->mockContainer,
             $this->mockContainer
         );
-        $this->assertInstanceOf(FileSystemManager::class, $this->manager);
+        $this->assertInstanceOf(FlySystemManager::class, $this->manager);
     }
 
     public function testConstructor()

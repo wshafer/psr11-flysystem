@@ -30,7 +30,7 @@ class MainConfig
             || empty($config['flysystem'])
         ) {
             throw new MissingConfigException(
-                'No config key of "flyststem" found in config array.'
+                'No config key of "flysystem" found in config array.'
             );
         }
 
