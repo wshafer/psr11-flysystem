@@ -597,11 +597,11 @@ return [
 <?php
 
 # Get the file system manager from the container
-$fileSystemManager = $container->get(\WShafer\PSR11FlySystem\Service\FileSystemManager::class);
+$flySystemManager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
 
 # Get the FlySystem FileSystem Or Manager
-$fileSystem = $fileSystemManager->get('local');
-$manager = $fileSystemManager->get('manager');
+$fileSystem = $flySystemManager->get('local');
+$fileSystemManager = $flySystemManager->get('manager');
 ```
 
 Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)
