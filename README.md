@@ -7,6 +7,11 @@
 
 #### Table of Contents
 - [Installation](#installation)
+- [Containers](#containers)
+    - [Pimple](#pimple-example)
+    - [Zend Service Manager](#zend-service-manager)
+- [Frameworks](#frameworks)
+    - [Zend Expressive](#zend-expressive)
 - [Configuration](#configuration)
     - [Adaptors](#adaptors)
         - [Null / Test](#nulltest)
@@ -30,6 +35,136 @@
 ```bash
 composer require wshafer/psr11-flysystem
 ```
+
+# Containers
+Any PSR-11 container wil work.  In order to do that you will need to add configuration
+and register the factory \WShafer\PSR11FlySystem\FlySystemManagerFactory()
+
+Below are some specific container examples to get you started
+
+### Pimple Example
+```php
+
+// Create Container
+$container = new \Interop\Container\Pimple\PimpleInterop(
+    null,
+    [
+        \WShafer\PSR11FlySystem\FlySystemManager::class
+            => new \WShafer\PSR11FlySystem\FlySystemManagerFactory(),
+
+        'config' => [
+            'flysystem' => [
+                'adaptors' => [
+                    'myFiles' => [
+                        'type' => 'local',
+                        'options' => [
+                            'root' => '/tmp/pimple'
+                        ],
+                    ],
+                ],
+
+                'fileSystems' => [
+                    # Array Keys are the file systems identifiers
+                    'myFiles' => [
+                        'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+                    ],
+                ],
+            ],
+        ]
+    ]
+);
+
+$manager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
+$fileSystem = $manager->get('myFiles');
+$fileSystem->put('test2.txt', 'this is also test 2');
+print $fileSystem->get('test2.txt')->read();
+```
+
+### Zend Service Manager
+_Note: If you use Expressive please skip this and see the section on Expressive_
+
+```php
+$container = new \Zend\ServiceManager\ServiceManager([
+    'factories' => [
+        \WShafer\PSR11FlySystem\FlySystemManager::class
+        =>\WShafer\PSR11FlySystem\FlySystemManagerFactory::class
+    ]
+]);
+
+$container->setService('config', [
+    'flysystem' => [
+        'adaptors' => [
+            'myFiles' => [
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/pimple'
+                ],
+            ],
+        ],
+
+        'fileSystems' => [
+            # Array Keys are the file systems identifiers
+            'myFiles' => [
+                'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+            ],
+        ],
+    ],
+]);
+
+/** @var \WShafer\PSR11FlySystem\FlySystemManager $manager */
+$manager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
+$fileSystem = $manager->get('myFiles');
+$fileSystem->put('test2.txt', 'this is also test 2');
+print $fileSystem->get('test2.txt')->read();
+```
+
+#Frameworks
+
+### Zend Expressive
+If your using Zend Expressive using the [Config Manager](https://zend-expressive.readthedocs.io/en/latest/cookbook/modular-layout/)
+and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) You should 
+be all set to go.  Simply add your Fly System configuration and you should be in business.
+
+If you're not using the helpers you will need to register the manager
+
+config/autoload/dependencies.global.php
+```php
+<?php
+
+return [
+    'dependencies' => [
+        'factories' => [
+            \WShafer\PSR11FlySystem\FlySystemManager::class
+                =>\WShafer\PSR11FlySystem\FlySystemManagerFactory::class
+        ]
+    ],
+];
+```
+
+config/autoload/local.php
+```php
+<?php
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myFiles' => [
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/pimple'
+                ],
+            ],
+        ],
+
+        'fileSystems' => [
+            # Array Keys are the file systems identifiers
+            'myFiles' => [
+                'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+            ],
+        ],
+    ],
+];
+```
+
 
 # Configuration
 
