@@ -26,6 +26,7 @@
     - [Caches](#caches)
         - [Memory / Test](#memorytest)
         - [PSR-6](#psr-6)
+        - [Predis](#predis)
     - [File System](#file-system)
     - [Example](#full-example)
 - [Usage](#usage)
@@ -42,7 +43,7 @@ and register the factory \WShafer\PSR11FlySystem\FlySystemManagerFactory()
 
 Below are some specific container examples to get you started
 
-### Pimple Example
+## Pimple Example
 ```php
 // Create Container
 $container = new \Interop\Container\Pimple\PimpleInterop(
@@ -79,7 +80,7 @@ $fileSystem->put('test2.txt', 'this is also test 2');
 print $fileSystem->get('test2.txt')->read();
 ```
 
-### Zend Service Manager
+## Zend Service Manager
 _Note: If you use Expressive please skip this and see the section on Expressive_
 
 ```php
@@ -119,7 +120,7 @@ print $fileSystem->get('test2.txt')->read();
 
 #Frameworks
 
-### Zend Expressive
+## Zend Expressive
 If your using Zend Expressive using the [Config Manager](https://zend-expressive.readthedocs.io/en/latest/cookbook/modular-layout/)
 and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) You should 
 be all set to go.  Simply add your Fly System configuration and you should be in business.
@@ -181,10 +182,10 @@ you a fully functioning File System to work with.   In addition you can also con
 a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
 file systems that need to interact with one another.
 
-### Adaptors
+## Adaptors
 Example configs for supported adaptors
 
-#### Null/Test
+### Null/Test
 
 ```php
 <?php
@@ -202,7 +203,7 @@ return [
 ```
 FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
 
-#### Local
+### Local
 
 ```php
 <?php
@@ -235,7 +236,7 @@ return [
 
 FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
 
-#### FTP
+### FTP
 
 ```php
 <?php
@@ -265,7 +266,7 @@ return [
 
 FlySystem Docs: [FTP](https://flysystem.thephpleague.com/adapter/ftp/)
 
-#### SFTP
+### SFTP
 **Install**
 ```bash
 composer require league/flysystem-sftp
@@ -297,7 +298,7 @@ return [
 
 FlySystem Docs: [SFTP](https://flysystem.thephpleague.com/adapter/sftp/)
 
-#### Memory
+### Memory
 
 **Install**
 ```bash
@@ -322,7 +323,7 @@ return [
 
 FlySystem Docs: [Memory](https://flysystem.thephpleague.com/adapter/memory/)
 
-#### Zip Archive
+### Zip Archive
 
 **Install**
 ```bash
@@ -349,7 +350,7 @@ return [
 
 FlySystem Docs: [Zip Archive](https://flysystem.thephpleague.com/adapter/zip-archive/)
 
-#### Azure
+### Azure
 
 **Install**
 ```bash
@@ -378,7 +379,7 @@ return [
 ```
 FlySystem Docs: [Azure Adaptor](https://flysystem.thephpleague.com/adapter/azure/)
 
-#### AWS S3
+### AWS S3
 _Note: AWS V2 is not supported in this package_
 
 **Install**
@@ -410,7 +411,7 @@ return [
 ```
 FlySystem Docs: [Aws S3 Adapter - SDK V3](https://flysystem.thephpleague.com/adapter/aws-s3-v3/)
 
-#### DropBox
+### DropBox
 
 **Install**
 ```bash
@@ -440,7 +441,7 @@ FlySystem Docs: [DropBox](https://flysystem.thephpleague.com/adapter/dropbox/)
 ## Caches
 Example configs for supported caches
 
-#### Memory/Test
+### Memory/Test
 
 ```php
 <?php
@@ -458,7 +459,7 @@ return [
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 
-#### PSR-6
+### PSR-6
 
 ```php
 <?php
@@ -480,7 +481,29 @@ return [
 ```
 FlySystem Docs: Unknown 
 
-### File System
+### Predis
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'caches' => [
+            'local' => [
+                'type' => 'predis',
+                'options' => [
+                    'service' => 'my_predis_client_from_container', # Configured Predis Client Service to pull from container
+                    'key' => 'my_key_', # Cache Key
+                    'ttl' => 3000 # Expires
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
+
+## File System
 ```php
 <?php
 
@@ -516,7 +539,7 @@ return [
 ];
 ```
 
-### Full Example
+## Full Example
 ```php
 <?php
 

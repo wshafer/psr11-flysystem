@@ -27,7 +27,8 @@
         "spatie/flysystem-dropbox": "^1.0",
         "league/flysystem-memory": "^1.0",
         "league/flysystem-sftp": "^1.0",
-        "league/flysystem-ziparchive": "^1.0"
+        "league/flysystem-ziparchive": "^1.0",
+        "predis/predis": "^1.1"
     },
     "autoload": {
         "psr-4": {

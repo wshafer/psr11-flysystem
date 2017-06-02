@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace WShafer\PSR11FlySystem\Cache;
 
-use League\Flysystem\Cached\Storage\Psr6Cache;
+use League\Flysystem\Cached\Storage\Predis;
 
-class Psr6CacheFactory extends ContainerAwareCacheAbstract
+class PredisCacheFactory extends ContainerAwareCacheAbstract
 {
     public function __invoke(array $options)
     {
@@ -14,6 +14,6 @@ class Psr6CacheFactory extends ContainerAwareCacheAbstract
         $ttl = $options['ttl'] ?? null;
 
         $service = $this->getService($serviceName);
-        return new Psr6Cache($service, $key, $ttl);
+        return new Predis($service, $key, $ttl);
     }
 }

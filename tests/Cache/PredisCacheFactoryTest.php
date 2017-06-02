@@ -3,16 +3,17 @@ declare(strict_types=1);
 
 namespace WShafer\PSR11FlySystem\Test\Cache;
 
-use League\Flysystem\Cached\Storage\Psr6Cache;
+use League\Flysystem\Cached\Storage\Predis;
 use PHPUnit\Framework\TestCase;
-use Psr\Cache\CacheItemPoolInterface;
+use Predis\Client;
 use Psr\Container\ContainerInterface;
+use WShafer\PSR11FlySystem\Cache\PredisCacheFactory;
 use WShafer\PSR11FlySystem\Cache\Psr6CacheFactory;
 
 /**
- * @covers \WShafer\PSR11FlySystem\Cache\Psr6CacheFactory
+ * @covers \WShafer\PSR11FlySystem\Cache\PredisCacheFactory
  */
-class Psr6CacheFactoryTest extends TestCase
+class PredisCacheFactoryTest extends TestCase
 {
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $containerMock;
@@ -23,15 +24,15 @@ class Psr6CacheFactoryTest extends TestCase
     public function setup()
     {
         $this->containerMock = $this->createMock(ContainerInterface::class);
-        $this->factory = new Psr6CacheFactory();
+        $this->factory = new PredisCacheFactory();
         $this->factory->setContainer($this->containerMock);
-        $this->assertInstanceOf(Psr6CacheFactory::class, $this->factory);
+        $this->assertInstanceOf(PredisCacheFactory::class, $this->factory);
         $this->assertEquals($this->containerMock, $this->factory->getContainer());
     }
 
     public function testInvoke()
     {
-        $mockService = $this->createMock(CacheItemPoolInterface::class);
+        $mockService = $this->createMock(Client::class);
 
         $this->containerMock->expects($this->once())
             ->method('get')
@@ -49,9 +50,9 @@ class Psr6CacheFactoryTest extends TestCase
             'ttl' => 300
         ];
 
-        /** @var Psr6Cache $cache */
+        /** @var Predis $cache */
         $cache = call_user_func($this->factory, $options);
-        $this->assertInstanceOf(Psr6Cache::class, $cache);
+        $this->assertInstanceOf(Predis::class, $cache);
     }
 
     /**

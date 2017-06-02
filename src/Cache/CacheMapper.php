@@ -18,6 +18,8 @@ class CacheMapper extends MapperAbstract
                 return Psr6CacheFactory::class;
             case 'memory':
                 return MemoryCacheFactory::class;
+            case 'predis':
+                return PredisCacheFactory::class;
         }
 
         return null;
