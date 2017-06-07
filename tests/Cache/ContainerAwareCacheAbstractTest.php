@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use WShafer\PSR11FlySystem\Cache\ContainerAwareCacheAbstract;
 
-
 /**
  * @covers \WShafer\PSR11FlySystem\Cache\ContainerAwareCacheAbstract
  */
