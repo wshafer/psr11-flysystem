@@ -5,6 +5,7 @@ namespace WShafer\PSR11FlySystem\Test;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use WShafer\PSR11FlySystem\Adaptor\AdaptorMapper;
 use WShafer\PSR11FlySystem\Cache\CacheMapper;
 use WShafer\PSR11FlySystem\Config\MainConfig;
@@ -91,6 +92,66 @@ class FlySystemManagerFactoryTest extends TestCase
 
     public function testGetConfig()
     {
+        $mainConfig = $this->factory->getConfig($this->container);
+        $this->assertInstanceOf(MainConfig::class, $mainConfig);
+    }
+
+    public function testGetConfigFromParameters()
+    {
+        $this->container = $this->createMock(ContainerBuilder::class);
+
+        $this->container->expects($this->any())
+            ->method('hasParameter')
+            ->with('flysystem')
+            ->willReturn(true);
+
+        $this->container->expects($this->any())
+            ->method('getParameter')
+            ->with('flysystem')
+            ->willReturn($this->getConfig()['flysystem']);
+
+        $mainConfig = $this->factory->getConfig($this->container);
+        $this->assertInstanceOf(MainConfig::class, $mainConfig);
+    }
+
+    public function testGetConfigFromSettings()
+    {
+        $this->container = $this->createMock(ContainerInterface::class);
+
+        $map = [
+            ['config', false],
+            ['settings', true],
+        ];
+
+        $this->container->expects($this->any())
+            ->method('has')
+            ->will($this->returnValueMap($map));
+
+        $this->container->expects($this->any())
+            ->method('get')
+            ->with('settings')
+            ->willReturn($this->getConfig());
+
+        $mainConfig = $this->factory->getConfig($this->container);
+        $this->assertInstanceOf(MainConfig::class, $mainConfig);
+    }
+
+    /**
+     * @expectedException \WShafer\PSR11FlySystem\Exception\MissingConfigException
+     */
+    public function testGetConfigNoConfigFound()
+    {
+        $this->container = $this->createMock(ContainerInterface::class);
+
+        $map = [
+            ['config', false],
+            ['settings', false],
+        ];
+
+        $this->container->expects($this->any())
+            ->method('has')
+            ->will($this->returnValueMap($map));
+
         $mainConfig = $this->factory->getConfig($this->container);
         $this->assertInstanceOf(MainConfig::class, $mainConfig);
     }

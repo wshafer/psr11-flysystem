@@ -31,11 +31,34 @@ class FlySystemManagerFactory
     public function getConfig(ContainerInterface $container)
     {
         if (!$this->config) {
-            $config = $container->has('config') ? $container->get('config') : [];
+            $config = $this->getConfigArray($container);
             $this->config = new MainConfig($config);
         }
 
         return $this->config;
+    }
+
+    protected function getConfigArray(ContainerInterface $container)
+    {
+        // Symfony config is parameters. //
+        if (method_exists($container, 'getParameter')
+            && method_exists($container, 'hasParameter')
+            && $container->hasParameter('flysystem')
+        ) {
+            return ['flysystem' => $container->getParameter('flysystem')];
+        }
+
+        // Zend uses config key
+        if ($container->has('config')) {
+            return $container->get('config');
+        }
+
+        // Slim Config comes from "settings"
+        if ($container->has('settings')) {
+            return ['flysystem' => $container->get('settings')['flysystem']];
+        }
+
+        return [];
     }
 
     public function getAdaptorManager(ContainerInterface $container)

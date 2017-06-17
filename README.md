@@ -12,6 +12,8 @@
     - [Zend Service Manager](#zend-service-manager)
 - [Frameworks](#frameworks)
     - [Zend Expressive](#zend-expressive)
+    - [Symfony](#symfony)
+    - [Slim](#slim)
 - [Configuration](#configuration)
     - [Adaptors](#adaptors)
         - [Null / Test](#nulltest)
@@ -81,7 +83,6 @@ print $fileSystem->get('test2.txt')->read();
 ```
 
 ## Zend Service Manager
-_Note: If you use Expressive please skip this and see the section on Expressive_
 
 ```php
 $container = new \Zend\ServiceManager\ServiceManager([
@@ -163,6 +164,119 @@ return [
         ],
     ],
 ];
+```
+
+## Symfony
+
+app/config/services.yml
+```yaml
+services:
+    WShafer\PSR11FlySystem\FlySystemManager:
+        class: 'WShafer\PSR11FlySystem\FlySystemManager'
+        factory: 'WShafer\PSR11FlySystem\FlySystemManagerFactory:__invoke'
+        arguments: ['@service_container']
+        public: true
+
+    WShafer\PSR11FlySystem\FlySystemManagerFactory:
+        class: 'WShafer\PSR11FlySystem\FlySystemManagerFactory'
+        public: true
+```
+
+app/config/config.yml (or equivalent)
+ ```yaml
+ parameters:
+     flysystem:
+             adaptors:
+                 myFiles:
+                     type: 'local'
+                     options:
+                         root: '/tmp/symfony'
+ 
+             fileSystems:
+                 myFiles:
+                   adaptor: 'myFiles'
+ ```
+
+src/AppBundle/Controller/DefaultController.php
+
+```php
+<?php
+
+namespace AppBundle\Controller;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+
+class DefaultController extends Controller
+{
+    /**
+     * @Route("/", name="homepage")
+     */
+    public function indexAction(Request $request)
+    {
+        $manager = $this->container->get('WShafer\PSR11FlySystem\FlySystemManager');
+        $fileSystem = $manager->get('myFiles');
+        $fileSystem->write('test.txt', 'Hi there');
+    }
+}
+```
+
+## Slim
+public/index.php
+```php
+<?php
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+
+require '../vendor/autoload.php';
+
+// Add Configuration
+$config = [
+    'settings' => [
+        'flysystem' => [
+            'adaptors' => [
+                'myFiles' => [
+                    'type' => 'local',
+                    'options' => [
+                        'root' => '/tmp/slim'
+                    ],
+                ],
+            ],
+
+            'fileSystems' => [
+                # Array Keys are the file systems identifiers
+                'myFiles' => [
+                    'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+                ],
+            ],
+        ],
+    ],
+];
+
+$app = new \Slim\App($config);
+
+// Wire up the factory
+$container = $app->getContainer();
+$container[\WShafer\PSR11FlySystem\FlySystemManager::class] = new \WShafer\PSR11FlySystem\FlySystemManagerFactory();
+
+$app->get('/example', function (Request $request, Response $response) {
+    
+    // Get the manager
+    $manager = $this->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
+    
+    // Get the filesystem
+    $fileSystem = $manager->get('myFiles');
+    
+    // Write file
+    $fileSystem->put('test2.txt', 'this is also test 2');
+    
+    
+    $response->getBody()->write($fileSystem->get('test2.txt')->read());
+    return $response;
+});
+
+$app->run();
 ```
 
 
