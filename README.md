@@ -220,7 +220,7 @@ return [
             'myFiles' => [
                 'type' => 'local',
                 'options' => [
-                    'root' => '/tmp/pimple'
+                    'root' => '/tmp/zend'
                 ],
             ],
         ],
