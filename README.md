@@ -7,14 +7,16 @@
 
 #### Table of Contents
 - [Installation](#installation)
-- [Containers](#containers)
-    - [Pimple](#pimple-example)
-    - [Zend Service Manager](#zend-service-manager)
-- [Frameworks](#frameworks)
-    - [Zend Expressive](#zend-expressive)
-    - [Symfony](#symfony)
-    - [Slim](#slim)
+- [Usage](#usage)
 - [Configuration](#configuration)
+    - [Containers](#containers)
+        - [Pimple](#pimple-example)
+        - [Zend Service Manager](#zend-service-manager)
+    - [Frameworks](#frameworks)
+        - [Zend Expressive](#zend-expressive)
+        - [Symfony](#symfony)
+        - [Slim](#slim)
+- [Full Configuration](#configuration)
     - [Adaptors](#adaptors)
         - [Null / Test](#nulltest)
         - [Local](#local)
@@ -31,7 +33,7 @@
         - [Predis](#predis)
     - [File System](#file-system)
     - [Example](#full-example)
-- [Usage](#usage)
+
 
 # Installation
 
@@ -39,13 +41,46 @@
 composer require wshafer/psr11-flysystem
 ```
 
-# Containers
+# Usage
+
+```php
+<?php
+
+# Get the file system manager from the container
+$flySystemManager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
+
+# Get the FlySystem FileSystem
+$fileSystem = $flySystemManager->get('local');
+
+# Write to file
+$fileSystem->put('test2.txt', 'this is also test 2');
+```
+
+Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)
+
+# Configuration
+
+Fly System uses three types of services that will each need to be configured for your application.
+
+- [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
+an Azure container, S3, Local, Memory, etc.
+
+- [Caches](#caches) : Cache layer to optimize performance.  While this is optional, this package
+will use a memory cache by default if none is provide.
+
+- [File System](#file-system) :  This will configure the final FlySystem File System that
+you will actually use to do the work.   This uses the previous two configurations to get
+you a fully functioning File System to work with.   In addition you can also configure
+a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
+file systems that need to interact with one another.
+
+## Containers
 Any PSR-11 container wil work.  In order to do that you will need to add configuration
 and register the factory \WShafer\PSR11FlySystem\FlySystemManagerFactory()
 
 Below are some specific container examples to get you started
 
-## Pimple Example
+### Pimple Example
 ```php
 // Create Container
 $container = new \Interop\Container\Pimple\PimpleInterop(
@@ -82,7 +117,7 @@ $fileSystem->put('test2.txt', 'this is also test 2');
 print $fileSystem->get('test2.txt')->read();
 ```
 
-## Zend Service Manager
+### Zend Service Manager
 
 ```php
 $container = new \Zend\ServiceManager\ServiceManager([
@@ -119,29 +154,15 @@ $fileSystem->put('test2.txt', 'this is also test 2');
 print $fileSystem->get('test2.txt')->read();
 ```
 
-#Frameworks
+## Frameworks
+Any framework that use a PSR-11 should work fine.   Below are some specific framework examples to get you started
 
-## Zend Expressive
+### Zend Expressive
 If your using Zend Expressive using the [Config Manager](https://zend-expressive.readthedocs.io/en/latest/cookbook/modular-layout/)
 and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) You should 
 be all set to go.  Simply add your Fly System configuration and you should be in business.
 
-If you're not using the helpers you will need to register the manager
-
-config/autoload/dependencies.global.php
-```php
-<?php
-
-return [
-    'dependencies' => [
-        'factories' => [
-            \WShafer\PSR11FlySystem\FlySystemManager::class
-                =>\WShafer\PSR11FlySystem\FlySystemManagerFactory::class
-        ]
-    ],
-];
-```
-
+#### Configuration
 config/autoload/local.php
 ```php
 <?php
@@ -166,8 +187,45 @@ return [
 ];
 ```
 
-## Symfony
+If you're not using the composer config helpers you will also need to register the manager
 
+#### Container Service Config
+config/autoload/dependencies.global.php
+```php
+<?php
+
+return [
+    'dependencies' => [
+        'factories' => [
+            \WShafer\PSR11FlySystem\FlySystemManager::class
+                =>\WShafer\PSR11FlySystem\FlySystemManagerFactory::class
+        ]
+    ],
+];
+```
+
+### Symfony
+While there are other Symfony bundles out there, as of Symfony 3.3 the service container is now 
+a PSR-11 compatible container.  The following config below will get these factories registered and working
+in Symfony.
+
+#### Configuration
+app/config/config.yml (or equivalent)
+```yaml
+parameters:
+  flysystem:
+    adaptors:
+      myFiles:
+        type: 'local'
+        options:
+          root: '/tmp/symfony'
+
+    fileSystems:
+      myFiles:
+        adaptor: 'myFiles'
+```
+
+#### Container Service Config
 app/config/services.yml
 ```yaml
 services:
@@ -182,21 +240,8 @@ services:
         public: true
 ```
 
-app/config/config.yml (or equivalent)
- ```yaml
- parameters:
-     flysystem:
-             adaptors:
-                 myFiles:
-                     type: 'local'
-                     options:
-                         root: '/tmp/symfony'
- 
-             fileSystems:
-                 myFiles:
-                   adaptor: 'myFiles'
- ```
 
+#### Example Usage
 src/AppBundle/Controller/DefaultController.php
 
 ```php
@@ -222,7 +267,8 @@ class DefaultController extends Controller
 }
 ```
 
-## Slim
+### Slim
+
 public/index.php
 ```php
 <?php
@@ -258,8 +304,12 @@ $app = new \Slim\App($config);
 
 // Wire up the factory
 $container = $app->getContainer();
+
+// Register the service with the container.
 $container[\WShafer\PSR11FlySystem\FlySystemManager::class] = new \WShafer\PSR11FlySystem\FlySystemManagerFactory();
 
+
+// Example usage
 $app->get('/example', function (Request $request, Response $response) {
     
     // Get the manager
@@ -278,23 +328,6 @@ $app->get('/example', function (Request $request, Response $response) {
 
 $app->run();
 ```
-
-
-# Configuration
-
-Fly System uses three types of services that will each need to be configured.
-
-- [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
-an Azure container, S3, Local, Memory, etc.
-
-- [Caches](#caches) : Cache layer to optimize performance.  While this is optional, this package
-will use a memory cache by default if none is provide.
-
-- [File System](#file-system) :  This will configure the final FlySystem File System that
-you will actually use to do the work.   This uses the previous two configurations to get
-you a fully functioning File System to work with.   In addition you can also configure
-a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
-file systems that need to interact with one another.
 
 ## Adaptors
 Example configs for supported adaptors
@@ -726,18 +759,3 @@ return [
 ];
 
 ```
-
-# Usage
-
-```php
-<?php
-
-# Get the file system manager from the container
-$flySystemManager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
-
-# Get the FlySystem FileSystem Or Manager
-$fileSystem = $flySystemManager->get('local');
-$fileSystemManager = $flySystemManager->get('manager');
-```
-
-Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)
