@@ -188,9 +188,10 @@ return [
 ];
 ```
 
-If you're not using the composer config helpers you will also need to register the manager
-
 #### Container Service Config
+If you're not using the [Zend Component Installer](https://github.com/zendframework/zend-component-installer) you will 
+also need to register the manager
+
 config/autoload/dependencies.global.php
 ```php
 <?php
@@ -236,7 +237,8 @@ return [
 ```
 
 #### Module Config
-If you're not using the composer config helpers you will also need to register the Module.
+If you're not using the [Zend Component Installer](https://github.com/zendframework/zend-component-installer) you will 
+also need to register the Module.
 
 config/modules.config.php (ZF 3 skeleton)
 ```php
