@@ -16,23 +16,23 @@
         - [Zend Expressive](#zend-expressive)
         - [Symfony](#symfony)
         - [Slim](#slim)
-- [Full Configuration](#configuration)
-    - [Adaptors](#adaptors)
-        - [Null / Test](#nulltest)
-        - [Local](#local)
-        - [FTP](#ftp)
-        - [SFTP](#sftp)
-        - [Memory](#memory)
-        - [Zip Archive](#zip-archive)
-        - [Azure](#azure)
-        - [AWS S3](#aws-s3)
-        - [DropBox](#dropbox)
-    - [Caches](#caches)
-        - [Memory / Test](#memorytest)
-        - [PSR-6](#psr-6)
-        - [Predis](#predis)
-    - [File System](#file-system)
-    - [Example](#full-example)
+    - [Full Configuration](#full-configuration)
+        - [Adaptors](#adaptors)
+            - [Null / Test](#nulltest)
+            - [Local](#local)
+            - [FTP](#ftp)
+            - [SFTP](#sftp)
+            - [Memory](#memory)
+            - [Zip Archive](#zip-archive)
+            - [Azure](#azure)
+            - [AWS S3](#aws-s3)
+            - [DropBox](#dropbox)
+        - [Caches](#caches)
+            - [Memory / Test](#memorytest)
+            - [PSR-6](#psr-6)
+            - [Predis](#predis)
+        - [File System](#file-system)
+        - [Example](#full-example)
 
 
 # Installation
@@ -329,10 +329,12 @@ $app->get('/example', function (Request $request, Response $response) {
 $app->run();
 ```
 
-## Adaptors
+## Full Configuration
+
+### Adaptors
 Example configs for supported adaptors
 
-### Null/Test
+#### Null/Test
 
 ```php
 <?php
@@ -350,7 +352,7 @@ return [
 ```
 FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
 
-### Local
+#### Local
 
 ```php
 <?php
@@ -383,7 +385,7 @@ return [
 
 FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
 
-### FTP
+#### FTP
 
 ```php
 <?php
@@ -413,7 +415,7 @@ return [
 
 FlySystem Docs: [FTP](https://flysystem.thephpleague.com/adapter/ftp/)
 
-### SFTP
+#### SFTP
 **Install**
 ```bash
 composer require league/flysystem-sftp
@@ -445,7 +447,7 @@ return [
 
 FlySystem Docs: [SFTP](https://flysystem.thephpleague.com/adapter/sftp/)
 
-### Memory
+#### Memory
 
 **Install**
 ```bash
@@ -470,7 +472,7 @@ return [
 
 FlySystem Docs: [Memory](https://flysystem.thephpleague.com/adapter/memory/)
 
-### Zip Archive
+#### Zip Archive
 
 **Install**
 ```bash
@@ -497,7 +499,7 @@ return [
 
 FlySystem Docs: [Zip Archive](https://flysystem.thephpleague.com/adapter/zip-archive/)
 
-### Azure
+#### Azure
 
 **Install**
 ```bash
@@ -526,7 +528,7 @@ return [
 ```
 FlySystem Docs: [Azure Adaptor](https://flysystem.thephpleague.com/adapter/azure/)
 
-### AWS S3
+#### AWS S3
 _Note: AWS V2 is not supported in this package_
 
 **Install**
@@ -558,7 +560,7 @@ return [
 ```
 FlySystem Docs: [Aws S3 Adapter - SDK V3](https://flysystem.thephpleague.com/adapter/aws-s3-v3/)
 
-### DropBox
+#### DropBox
 
 **Install**
 ```bash
@@ -585,10 +587,10 @@ return [
 ```
 FlySystem Docs: [DropBox](https://flysystem.thephpleague.com/adapter/dropbox/)
 
-## Caches
+### Caches
 Example configs for supported caches
 
-### Memory/Test
+#### Memory/Test
 
 ```php
 <?php
@@ -606,7 +608,7 @@ return [
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 
-### PSR-6
+#### PSR-6
 
 ```php
 <?php
@@ -628,7 +630,7 @@ return [
 ```
 FlySystem Docs: Unknown 
 
-### Predis
+#### Predis
 
 ```php
 <?php
@@ -650,7 +652,7 @@ return [
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
 
-## File System
+### File System
 ```php
 <?php
 
@@ -686,7 +688,7 @@ return [
 ];
 ```
 
-## Full Example
+### Full Example
 ```php
 <?php
 
