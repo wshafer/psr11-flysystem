@@ -14,6 +14,7 @@
         - [Zend Service Manager](#zend-service-manager)
     - [Frameworks](#frameworks)
         - [Zend Expressive](#zend-expressive)
+        - [Zend Framework 3](#zend-framework-3)
         - [Symfony](#symfony)
         - [Slim](#slim)
     - [Full Configuration](#full-configuration)
@@ -159,7 +160,7 @@ Any framework that use a PSR-11 should work fine.   Below are some specific fram
 
 ### Zend Expressive
 If your using Zend Expressive using the [Config Manager](https://zend-expressive.readthedocs.io/en/latest/cookbook/modular-layout/)
-and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) You should 
+and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) you should 
 be all set to go.  Simply add your Fly System configuration and you should be in business.
 
 #### Configuration
@@ -203,6 +204,62 @@ return [
     ],
 ];
 ```
+
+### Zend Framework 3
+If your using Zend Framework with the [Zend Component Installer](https://github.com/zendframework/zend-component-installer)
+(Default in Version 3) you should be all set to go.  Simply add your Fly System configuration and you should be in 
+business.
+
+#### Configuration
+config/autoload/local.php
+```php
+<?php
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'myFiles' => [
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/pimple'
+                ],
+            ],
+        ],
+
+        'fileSystems' => [
+            # Array Keys are the file systems identifiers
+            'myFiles' => [
+                'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+            ],
+        ],
+    ],
+];
+```
+
+#### Module Config
+If you're not using the composer config helpers you will also need to register the Module.
+
+config/modules.config.php (ZF 3 skeleton)
+```php
+<?php
+
+return [
+    // ... Previously registered modules here
+    'WShafer\\PSR11FlySystem',
+];
+```
+
+config/application.config.php (ZF 2 skeleton)
+```php
+<?php
+
+return [
+    'modules' => [
+        // ... Previously registered modules here
+        'WShafer\\PSR11FlySystem',
+    ]
+];
+```
+
 
 ### Symfony
 While there are other Symfony bundles out there, as of Symfony 3.3 the service container is now 

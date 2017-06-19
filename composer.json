@@ -45,7 +45,7 @@
     "extra": {
         "zf": {
             "config-provider": "WShafer\\PSR11FlySystem\\ConfigProvider",
-            "module": "WShafer\PSR11FlySystem"
+            "module": "WShafer\\PSR11FlySystem"
         }
     }
 }
