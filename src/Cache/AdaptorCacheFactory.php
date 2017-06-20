@@ -12,7 +12,7 @@ class AdaptorCacheFactory extends ContainerAwareCacheAbstract
 {
     public function __invoke(array $options)
     {
-        $flyManagerServiceName = $options['flyManagerServiceName'] ?? FlySystemManager::class;
+        $managerServiceName = $options['managerServiceName'] ?? FlySystemManager::class;
 
         if (empty($options['fileSystem'])) {
             throw new MissingConfigException(
@@ -25,7 +25,7 @@ class AdaptorCacheFactory extends ContainerAwareCacheAbstract
         $ttl = $options['ttl'] ?? null;
 
         /** @var FlySystemManager $manager */
-        $manager = $this->getService($flyManagerServiceName);
+        $manager = $this->getService($managerServiceName);
 
         if (!$manager->has($fileSystem)) {
             throw new MissingServiceException(

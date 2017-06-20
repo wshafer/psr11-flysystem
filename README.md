@@ -720,7 +720,7 @@ return [
             'local' => [
                 'type' => 'adaptor',
                 'options' => [
-                    'flyManagerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, # Optional.  Only needed if you change the service name of the Fly Manager
+                    'managerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, # Optional.  Only needed if you change the service name of the Fly Manager
                     'fileSystem' => 'MyFileSystemName', # Filesystem name found in the FileSystems config
                     'fileName' => 'my_cache_file', # File name for cache file
                     'ttl' => 300

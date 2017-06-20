@@ -155,7 +155,7 @@ class AdaptorCacheFactoryTest extends TestCase
             ->willReturn(true);
 
         $options = [
-            'flyManagerServiceName' => 'MyRenamedService',
+            'managerServiceName' => 'MyRenamedService',
             'fileSystem' => 'mockFileAdaptor',
             'fileName' => 'cache_file',
             'ttl' => 300
@@ -181,7 +181,7 @@ class AdaptorCacheFactoryTest extends TestCase
             ->willReturn(false);
 
         $options = [
-            'flyManagerServiceName' => 'notHere',
+            'managerServiceName' => 'notHere',
             'fileSystem' => 'mockFileAdaptor',
             'fileName' => 'cache_file',
             'ttl' => 300
