@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use WShafer\PSR11FlySystem\Cache\AdaptorCacheFactory;
 use WShafer\PSR11FlySystem\Cache\CacheMapper;
+use WShafer\PSR11FlySystem\Cache\MemcachedCacheFactory;
 use WShafer\PSR11FlySystem\Cache\MemoryCacheFactory;
 use WShafer\PSR11FlySystem\Cache\PredisCacheFactory;
 use WShafer\PSR11FlySystem\Cache\Psr6CacheFactory;
@@ -22,6 +23,14 @@ class CacheMapperTest extends TestCase
         $cacheMapper = new CacheMapper($container);
         $result = $cacheMapper->getFactoryClassName('predis');
         $this->assertEquals(PredisCacheFactory::class, $result);
+    }
+
+    public function testGetFactoryClassNameMemcached()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $cacheMapper = new CacheMapper($container);
+        $result = $cacheMapper->getFactoryClassName('memcached');
+        $this->assertEquals(MemcachedCacheFactory::class, $result);
     }
 
     public function testGetFactoryClassNamePSR6()

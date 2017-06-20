@@ -3,35 +3,34 @@ declare(strict_types=1);
 
 namespace WShafer\PSR11FlySystem\Test\Cache;
 
-use League\Flysystem\Cached\Storage\Predis;
+use League\Flysystem\Cached\Storage\Memcached;
 use PHPUnit\Framework\TestCase;
-use Predis\Client;
 use Psr\Container\ContainerInterface;
-use WShafer\PSR11FlySystem\Cache\PredisCacheFactory;
+use WShafer\PSR11FlySystem\Cache\MemcachedCacheFactory;
 
 /**
- * @covers \WShafer\PSR11FlySystem\Cache\PredisCacheFactory
+ * @covers \WShafer\PSR11FlySystem\Cache\MemcachedCacheFactory
  */
-class PredisCacheFactoryTest extends TestCase
+class MemcachedCacheFactoryTest extends TestCase
 {
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $containerMock;
 
-    /** @var PredisCacheFactory */
+    /** @var MemcachedCacheFactory */
     protected $factory;
 
     public function setup()
     {
         $this->containerMock = $this->createMock(ContainerInterface::class);
-        $this->factory = new PredisCacheFactory();
+        $this->factory = new MemcachedCacheFactory();
         $this->factory->setContainer($this->containerMock);
-        $this->assertInstanceOf(PredisCacheFactory::class, $this->factory);
+        $this->assertInstanceOf(MemcachedCacheFactory::class, $this->factory);
         $this->assertEquals($this->containerMock, $this->factory->getContainer());
     }
 
     public function testInvoke()
     {
-        $mockService = $this->createMock(Client::class);
+        $mockService = $this->createMock(\Memcached::class);
 
         $this->containerMock->expects($this->once())
             ->method('get')
@@ -49,9 +48,9 @@ class PredisCacheFactoryTest extends TestCase
             'ttl' => 300
         ];
 
-        /** @var Predis $cache */
+        /** @var Memcached $cache */
         $cache = call_user_func($this->factory, $options);
-        $this->assertInstanceOf(Predis::class, $cache);
+        $this->assertInstanceOf(Memcached::class, $cache);
     }
 
     /**

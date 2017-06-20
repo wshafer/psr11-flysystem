@@ -9,7 +9,7 @@ class CacheMapper extends MapperAbstract
 {
     public function getFactoryClassName(string $type)
     {
-        if (class_exists($type)) {
+        if (class_exists($type) && $type != 'memcached') {
             return $type;
         }
 
@@ -23,6 +23,8 @@ class CacheMapper extends MapperAbstract
                 return MemoryCacheFactory::class;
             case 'predis':
                 return PredisCacheFactory::class;
+            case 'memcached':
+                return MemcachedCacheFactory::class;
         }
 
         return null;

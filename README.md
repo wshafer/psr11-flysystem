@@ -18,6 +18,7 @@
         - [Symfony](#symfony)
         - [Slim](#slim)
     - [Full Configuration](#full-configuration)
+        - [File System](#file-system)
         - [Adaptors](#adaptors)
             - [Null / Test](#nulltest)
             - [Local](#local)
@@ -33,8 +34,8 @@
             - [Adaptor](#adaptor)
             - [PSR-6](#psr-6)
             - [Predis](#predis)
+            - [Memcached](#memcached)
             - [Stash](#stash)
-        - [File System](#file-system)
         - [Example](#full-example)
 
 
@@ -392,6 +393,42 @@ $app->run();
 
 ## Full Configuration
 
+### File System
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'fileSystems' => [
+            # Array Keys are the file systems identifiers
+            'local' => [
+                'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
+                'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
+                'plugins' => [] # User defined plugins to be injected into the file system
+            ],
+            
+            # Mount Manager Config
+            'manager' => [
+                'adaptor' => 'manager',
+                'fileSystems' => [
+                    'local' => [
+                        'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
+                        'cache' => 'cache_one', # PSR-6 pre-configured service
+                        'plugins' => [] # User defined plugins to be injected into the file system
+                    ],
+                    
+                    'anotherFileSystem' => [
+                        'adaptor' => 'adaptor_two', # Adaptor name from adaptor configuration
+                        'cache' => 'cache_two', # PSR-6 pre-configured service
+                        'plugins' => [] # User defined plugins to be injected into the file system
+                    ],
+                ],
+            ],
+        ],
+    ],
+];
+```
+
 ### Adaptors
 Example configs for supported adaptors
 
@@ -739,6 +776,28 @@ return [
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
 
+#### Memcached
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'caches' => [
+            'local' => [
+                'type' => 'memcached',
+                'options' => [
+                    'service' => 'my_memcached_client_from_container', # Configured Memcached Client Service to pull from container
+                    'key' => 'my_key_', # Cache Key
+                    'ttl' => 3000 # Expires
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
+
 
 #### Stash
 See: [PSR6](#psr-6)
@@ -747,41 +806,6 @@ _Note: While "The League" provides a native cache client, Stash itself already
 implements a PSR 6 interface.  It is recommended to use that instead._
 
 
-### File System
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'fileSystems' => [
-            # Array Keys are the file systems identifiers
-            'local' => [
-                'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
-                'plugins' => [] # User defined plugins to be injected into the file system
-            ],
-            
-            # Mount Manager Config
-            'manager' => [
-                'adaptor' => 'manager',
-                'fileSystems' => [
-                    'local' => [
-                        'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                        'cache' => 'cache_one', # PSR-6 pre-configured service
-                        'plugins' => [] # User defined plugins to be injected into the file system
-                    ],
-                    
-                    'anotherFileSystem' => [
-                        'adaptor' => 'adaptor_two', # Adaptor name from adaptor configuration
-                        'cache' => 'cache_two', # PSR-6 pre-configured service
-                        'plugins' => [] # User defined plugins to be injected into the file system
-                    ],
-                ],
-            ],
-        ],
-    ],
-];
-```
 
 ### Full Example
 ```php
