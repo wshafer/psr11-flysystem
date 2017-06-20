@@ -30,8 +30,10 @@
             - [DropBox](#dropbox)
         - [Caches](#caches)
             - [Memory / Test](#memorytest)
+            - [Adaptor](#adaptor)
             - [PSR-6](#psr-6)
             - [Predis](#predis)
+            - [Stash](#stash)
         - [File System](#file-system)
         - [Example](#full-example)
 
@@ -667,6 +669,32 @@ return [
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 
+#### Adaptor
+
+This cache adaptor will use another adaptor to store the cache to file to.  It will pull this file system
+from the existing manager.
+
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'caches' => [
+            'local' => [
+                'type' => 'adaptor',
+                'options' => [
+                    'flyManagerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, # Optional.  Only needed if you change the service name of the Fly Manager
+                    'fileSystem' => 'MyFileSystemName', # Filesystem name found in the FileSystems config
+                    'fileName' => 'my_cache_file', # File name for cache file
+                    'ttl' => 300
+                ], 
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
+
 #### PSR-6
 
 ```php
@@ -710,6 +738,14 @@ return [
 ];
 ```
 FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
+
+
+#### Stash
+See: [PSR6](#psr-6)
+
+_Note: While "The League" provides a native cache client, Stash itself already
+implements a PSR 6 interface.  It is recommended to use that instead._
+
 
 ### File System
 ```php

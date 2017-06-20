@@ -5,6 +5,7 @@ namespace WShafer\PSR11FlySystem\Test\Cache;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use WShafer\PSR11FlySystem\Cache\AdaptorCacheFactory;
 use WShafer\PSR11FlySystem\Cache\CacheMapper;
 use WShafer\PSR11FlySystem\Cache\MemoryCacheFactory;
 use WShafer\PSR11FlySystem\Cache\PredisCacheFactory;
@@ -37,6 +38,22 @@ class CacheMapperTest extends TestCase
         $cacheMapper = new CacheMapper($container);
         $result = $cacheMapper->getFactoryClassName('memory');
         $this->assertEquals(MemoryCacheFactory::class, $result);
+    }
+
+    public function testGetFactoryClassNameAdaptor()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $cacheMapper = new CacheMapper($container);
+        $result = $cacheMapper->getFactoryClassName('adaptor');
+        $this->assertEquals(AdaptorCacheFactory::class, $result);
+    }
+
+    public function testGetFactoryClassNameAdapter()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $cacheMapper = new CacheMapper($container);
+        $result = $cacheMapper->getFactoryClassName('adapter');
+        $this->assertEquals(AdaptorCacheFactory::class, $result);
     }
 
     public function testGetFactoryClassNameByFullClass()

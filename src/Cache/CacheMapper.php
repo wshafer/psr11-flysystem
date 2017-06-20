@@ -14,6 +14,9 @@ class CacheMapper extends MapperAbstract
         }
 
         switch ($type) {
+            case 'adaptor':
+            case 'adapter':
+                return AdaptorCacheFactory::class;
             case 'psr6':
                 return Psr6CacheFactory::class;
             case 'memory':
