@@ -406,24 +406,6 @@ return [
                 'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
                 'plugins' => [] # User defined plugins to be injected into the file system
             ],
-            
-            # Mount Manager Config
-            'manager' => [
-                'adaptor' => 'manager',
-                'fileSystems' => [
-                    'local' => [
-                        'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                        'cache' => 'cache_one', # PSR-6 pre-configured service
-                        'plugins' => [] # User defined plugins to be injected into the file system
-                    ],
-                    
-                    'anotherFileSystem' => [
-                        'adaptor' => 'adaptor_two', # Adaptor name from adaptor configuration
-                        'cache' => 'cache_two', # PSR-6 pre-configured service
-                        'plugins' => [] # User defined plugins to be injected into the file system
-                    ],
-                ],
-            ],
         ],
     ],
 ];
