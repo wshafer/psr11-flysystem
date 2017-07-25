@@ -8,35 +8,37 @@
 #### Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
+- [Containers](#containers)
+    - [Pimple](#pimple-example)
+    - [Zend Service Manager](#zend-service-manager)
+- [Frameworks](#frameworks)
+    - [Zend Expressive](#zend-expressive)
+    - [Zend Framework 3](#zend-framework-3)
+    - [Symfony](#symfony)
+    - [Slim](#slim)
 - [Configuration](#configuration)
-    - [Containers](#containers)
-        - [Pimple](#pimple-example)
-        - [Zend Service Manager](#zend-service-manager)
-    - [Frameworks](#frameworks)
-        - [Zend Expressive](#zend-expressive)
-        - [Zend Framework 3](#zend-framework-3)
-        - [Symfony](#symfony)
-        - [Slim](#slim)
+    - [Minimal Configuration](#minimal-configuration)
+        - [Example](#minimal-example)
     - [Full Configuration](#full-configuration)
-        - [File System](#file-system)
-        - [Adaptors](#adaptors)
-            - [Null / Test](#nulltest)
-            - [Local](#local)
-            - [FTP](#ftp)
-            - [SFTP](#sftp)
-            - [Memory](#memory)
-            - [Zip Archive](#zip-archive)
-            - [Azure](#azure)
-            - [AWS S3](#aws-s3)
-            - [DropBox](#dropbox)
-        - [Caches](#caches)
-            - [Memory / Test](#memorytest)
-            - [Adaptor](#adaptor)
-            - [PSR-6](#psr-6)
-            - [Predis](#predis)
-            - [Memcached](#memcached)
-            - [Stash](#stash)
         - [Example](#full-example)
+    - [File System](#file-system)
+    - [Adaptors](#adaptors)
+        - [Null / Test](#nulltest)
+        - [Local](#local)
+        - [FTP](#ftp)
+        - [SFTP](#sftp)
+        - [Memory](#memory)
+        - [Zip Archive](#zip-archive)
+        - [Azure](#azure)
+        - [AWS S3](#aws-s3)
+        - [DropBox](#dropbox)
+    - [Caches](#caches)
+        - [Memory / Test](#memorytest)
+        - [Adaptor](#adaptor)
+        - [PSR-6](#psr-6)
+        - [Predis](#predis)
+        - [Memcached](#memcached)
+        - [Stash](#stash)
 
 
 # Installation
@@ -50,41 +52,25 @@ composer require wshafer/psr11-flysystem
 ```php
 <?php
 
-# Get the file system manager from the container
+// Get the file system manager from the container
 $flySystemManager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
 
-# Get the FlySystem FileSystem
+// Get the FlySystem FileSystem
 $fileSystem = $flySystemManager->get('local');
 
-# Write to file
+// Write to file
 $fileSystem->put('test2.txt', 'this is also test 2');
 ```
 
 Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)
 
-# Configuration
-
-Fly System uses three types of services that will each need to be configured for your application.
-
-- [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
-an Azure container, S3, Local, Memory, etc.
-
-- [Caches](#caches) : Cache layer to optimize performance.  While this is optional, this package
-will use a memory cache by default if none is provide.
-
-- [File System](#file-system) :  This will configure the final FlySystem File System that
-you will actually use to do the work.   This uses the previous two configurations to get
-you a fully functioning File System to work with.   In addition you can also configure
-a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
-file systems that need to interact with one another.
-
-## Containers
+# Containers
 Any PSR-11 container wil work.  In order to do that you will need to add configuration
 and register the factory \WShafer\PSR11FlySystem\FlySystemManagerFactory()
 
 Below are some specific container examples to get you started
 
-### Pimple Example
+## Pimple Example
 ```php
 // Create Container
 $container = new \Interop\Container\Pimple\PimpleInterop(
@@ -105,7 +91,7 @@ $container = new \Interop\Container\Pimple\PimpleInterop(
                 ],
 
                 'fileSystems' => [
-                    # Array Keys are the file systems identifiers
+                    // Array Keys are the file systems identifiers
                     'myFiles' => [
                         'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
                     ],
@@ -121,7 +107,7 @@ $fileSystem->put('test2.txt', 'this is also test 2');
 print $fileSystem->get('test2.txt')->read();
 ```
 
-### Zend Service Manager
+## Zend Service Manager
 
 ```php
 $container = new \Zend\ServiceManager\ServiceManager([
@@ -143,7 +129,7 @@ $container->setService('config', [
         ],
 
         'fileSystems' => [
-            # Array Keys are the file systems identifiers
+            // Array Keys are the file systems identifiers
             'myFiles' => [
                 'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
             ],
@@ -158,15 +144,15 @@ $fileSystem->put('test2.txt', 'this is also test 2');
 print $fileSystem->get('test2.txt')->read();
 ```
 
-## Frameworks
+# Frameworks
 Any framework that use a PSR-11 should work fine.   Below are some specific framework examples to get you started
 
-### Zend Expressive
+## Zend Expressive
 If your using Zend Expressive using the [Config Manager](https://zend-expressive.readthedocs.io/en/latest/cookbook/modular-layout/)
 and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) you should 
 be all set to go.  Simply add your Fly System configuration and you should be in business.
 
-#### Configuration
+### Configuration
 config/autoload/local.php
 ```php
 <?php
@@ -182,16 +168,16 @@ return [
         ],
 
         'fileSystems' => [
-            # Array Keys are the file systems identifiers
+            // Array Keys are the file systems identifiers
             'myFiles' => [
-                'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+                'adaptor' => 'myFiles', // Adaptor name from adaptor configuration
             ],
         ],
     ],
 ];
 ```
 
-#### Container Service Config
+### Container Service Config
 If you're not using the [Zend Component Installer](https://github.com/zendframework/zend-component-installer) you will 
 also need to register the manager
 
@@ -209,12 +195,12 @@ return [
 ];
 ```
 
-### Zend Framework 3
+## Zend Framework 3
 If your using Zend Framework with the [Zend Component Installer](https://github.com/zendframework/zend-component-installer)
 (Default in Version 3) you should be all set to go.  Simply add your Fly System configuration and you should be in 
 business.
 
-#### Configuration
+### Configuration
 config/autoload/local.php
 ```php
 <?php
@@ -230,16 +216,16 @@ return [
         ],
 
         'fileSystems' => [
-            # Array Keys are the file systems identifiers
+            // Array Keys are the file systems identifiers
             'myFiles' => [
-                'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+                'adaptor' => 'myFiles', // Adaptor name from adaptor configuration
             ],
         ],
     ],
 ];
 ```
 
-#### Module Config
+### Module Config
 If you're not using the [Zend Component Installer](https://github.com/zendframework/zend-component-installer) you will 
 also need to register the Module.
 
@@ -266,12 +252,12 @@ return [
 ```
 
 
-### Symfony
+## Symfony
 While there are other Symfony bundles out there, as of Symfony 3.3 the service container is now 
 a PSR-11 compatible container.  The following config below will get these factories registered and working
 in Symfony.
 
-#### Configuration
+### Configuration
 app/config/config.yml (or equivalent)
 ```yaml
 parameters:
@@ -287,7 +273,7 @@ parameters:
         adaptor: 'myFiles'
 ```
 
-#### Container Service Config
+### Container Service Config
 app/config/services.yml
 ```yaml
 services:
@@ -303,7 +289,7 @@ services:
 ```
 
 
-#### Example Usage
+### Example Usage
 src/AppBundle/Controller/DefaultController.php
 
 ```php
@@ -329,7 +315,7 @@ class DefaultController extends Controller
 }
 ```
 
-### Slim
+## Slim
 
 public/index.php
 ```php
@@ -353,9 +339,9 @@ $config = [
             ],
 
             'fileSystems' => [
-                # Array Keys are the file systems identifiers
+                // Array Keys are the file systems identifiers
                 'myFiles' => [
-                    'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+                    'adaptor' => 'myFiles', // Adaptor name from adaptor configuration
                 ],
             ],
         ],
@@ -391,7 +377,132 @@ $app->get('/example', function (Request $request, Response $response) {
 $app->run();
 ```
 
+# Configuration
+
+Fly System uses three types of services that will each need to be configured for your application.
+
+- [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
+an Azure container, S3, Local, Memory, etc.
+
+- [Caches](#caches) : (Optional) Cache layer to optimize performance.  While this is optional, this package
+will use a memory cache by default if none is provide.
+
+- [File System](#file-system) :  This will configure the final FlySystem File System that
+you will actually use to do the work.   This uses the previous two configurations to get
+you a fully functioning File System to work with.   In addition you can also configure
+a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
+file systems that need to interact with one another.
+
+## Minimal Configuration
+A minimal configuration would consist of at least one fileSystems entry and one adaptor.
+
+### Minimal Example
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            // Array Keys are the names used for the adaptor
+            'adaptor_one' => [
+                'type' => 'local', #A daptor name or pre-configured service from the container
+                // Adaptor specific options.  See adaptors below
+                'options' => [
+                    'root' => '/path/to/root', // Path on local filesystem
+                ],
+            ],
+        ],
+        
+        'fileSystems' => [
+            // Array Keys are the file systems identifiers
+            'local' => [
+                'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
+            ],
+        ],
+    ],
+];
+
+```
+
+
 ## Full Configuration
+
+### Full Example
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            // Array Keys are the names used for the adaptor
+            'adaptor_one' => [
+                'type' => 'local', // A daptor name or pre-configured service from the container
+                // Adaptor specific options.  See adaptors below
+                'options' => [
+                    'root' => '/path/to/root', // Path on local filesystem
+                ],
+            ],
+            
+            'adaptor_two' => [
+                'type' => 'null', // A daptor name or pre-configured service from the container
+                'options' => [], // Adaptor specific options.  See adaptors below
+            ],
+        ],
+        
+        'caches' => [
+            // Array Keys are the names used for the cache
+            'cache_one' => [
+                'type' => 'psr6',
+                // Cache specific options.  See caches below
+                'options' => [
+                    'service' => 'my_psr6_service_from_container',
+                    'key' => 'my_key_',
+                    'ttl' => 3000
+                ], 
+            ],
+            
+            'cache_two' => [
+                'type' => 'psr6',
+                // Cache specific options.  See caches below
+                'options' => [
+                    'service' => 'my_psr6_service_from_container',
+                    'key' => 'my_key_',
+                    'ttl' => 3000
+                ], 
+            ],
+            
+        ],
+        
+        'fileSystems' => [
+            // Array Keys are the file systems identifiers
+            'local' => [
+                'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
+                'cache' => 'PSR6\Cache\Service', // Cache name from adaptor configuration
+                'plugins' => [] // User defined plugins to be injected into the file system
+            ],
+            
+            // Mount Manager Config
+            'manager' => [
+                'adaptor' => 'manager',
+                'fileSystems' => [
+                    'local' => [
+                        'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
+                        'cache' => 'cache_one', // PSR-6 pre-configured service
+                        'plugins' => [] // User defined plugins to be injected into the file system
+                    ],
+                    
+                    'anotherFileSystem' => [
+                        'adaptor' => 'adaptor_two', // Adaptor name from adaptor configuration
+                        'cache' => 'cache_two', // PSR-6 pre-configured service
+                        'plugins' => [] // User defined plugins to be injected into the file system
+                    ],
+                ],
+            ],
+        ],
+    ],
+];
+
+```
 
 ### File System
 ```php
@@ -400,11 +511,11 @@ $app->run();
 return [
     'flysystem' => [
         'fileSystems' => [
-            # Array Keys are the file systems identifiers
+            // Array Keys are the file systems identifiers
             'local' => [
-                'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
-                'plugins' => [] # User defined plugins to be injected into the file system
+                'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
+                'cache' => 'PSR6\Cache\Service', // Cache name from adaptor configuration
+                'plugins' => [] // User defined plugins to be injected into the file system
             ],
         ],
     ],
@@ -443,8 +554,8 @@ return [
             'myAdaptorName' => [
                 'type' => 'local',
                 'options' => [
-                    'root' => '/path/to/root', # Path on local filesystem
-                    'writeFlags' => LOCK_EX, # PHP flags.  See: file_get_contents for more info
+                    'root' => '/path/to/root', // Path on local filesystem
+                    'writeFlags' => LOCK_EX, // PHP flags.  See: file_get_contents for more info
                     'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, #Link behavior
                     'permissions' => [
                         'file' => [
@@ -599,7 +710,7 @@ return [
                     'accountName' => 'account-name',
                     'apiKey' => 'api-key',
                     'container' => 'container-name',
-                    'prefix' => 'prefix_',  # Optional
+                    'prefix' => 'prefix_',  // Optional
                 ],
             ],
         ],
@@ -631,7 +742,7 @@ return [
                     'region'  => 'us-east-1',
                     'bucket'  => 'bucket-name',
                     'prefix'  => 'some/prefix', #optional
-                    'version' => 'latest' # Default: 'latest'
+                    'version' => 'latest' // Default: 'latest'
                 ],
             ],
         ],
@@ -702,9 +813,9 @@ return [
             'local' => [
                 'type' => 'adaptor',
                 'options' => [
-                    'managerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, # Optional.  Only needed if you change the service name of the Fly Manager
-                    'fileSystem' => 'MyFileSystemName', # Filesystem name found in the FileSystems config
-                    'fileName' => 'my_cache_file', # File name for cache file
+                    'managerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, // Optional.  Only needed if you change the service name of the Fly Manager
+                    'fileSystem' => 'MyFileSystemName', // Filesystem name found in the FileSystems config
+                    'fileName' => 'my_cache_file', // File name for cache file
                     'ttl' => 300
                 ], 
             ],
@@ -725,9 +836,9 @@ return [
             'local' => [
                 'type' => 'psr6',
                 'options' => [
-                    'service' => 'my_psr6_service_from_container', # Service to be used from the container
-                    'key' => 'my_key_', # Cache Key
-                    'ttl' => 3000 # Expires
+                    'service' => 'my_psr6_service_from_container', // Service to be used from the container
+                    'key' => 'my_key_', // Cache Key
+                    'ttl' => 3000 // Expires
                 ],
             ],
         ],
@@ -747,9 +858,9 @@ return [
             'local' => [
                 'type' => 'predis',
                 'options' => [
-                    'service' => 'my_predis_client_from_container', # Configured Predis Client Service to pull from container
-                    'key' => 'my_key_', # Cache Key
-                    'ttl' => 3000 # Expires
+                    'service' => 'my_predis_client_from_container', // Configured Predis Client Service to pull from container
+                    'key' => 'my_key_', // Cache Key
+                    'ttl' => 3000 // Expires
                 ],
             ],
         ],
@@ -769,9 +880,9 @@ return [
             'local' => [
                 'type' => 'memcached',
                 'options' => [
-                    'service' => 'my_memcached_client_from_container', # Configured Memcached Client Service to pull from container
-                    'key' => 'my_key_', # Cache Key
-                    'ttl' => 3000 # Expires
+                    'service' => 'my_memcached_client_from_container', // Configured Memcached Client Service to pull from container
+                    'key' => 'my_key_', // Cache Key
+                    'ttl' => 3000 // Expires
                 ],
             ],
         ],
@@ -786,79 +897,3 @@ See: [PSR6](#psr-6)
 
 _Note: While "The League" provides a native cache client, Stash itself already
 implements a PSR 6 interface.  It is recommended to use that instead._
-
-
-
-### Full Example
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'adaptors' => [
-            # Array Keys are the names used for the adaptor
-            'adaptor_one' => [
-                'type' => 'local', #A daptor name or pre-configured service from the container
-                'options' => [], # Adaptor specific options.  See adaptors below
-            ],
-            
-            'adaptor_two' => [
-                'type' => 'null', #A daptor name or pre-configured service from the container
-                'options' => [], # Adaptor specific options.  See adaptors below
-            ],
-        ],
-        
-        'caches' => [
-            # Array Keys are the names used for the cache
-            'cache_one' => [
-                'type' => 'psr6',
-                # Cache specific options.  See caches below
-                'options' => [
-                    'service' => 'my_psr6_service_from_container',
-                    'key' => 'my_key_',
-                    'ttl' => 3000
-                ], 
-            ],
-            
-            'cache_two' => [
-                'type' => 'psr6',
-                # Cache specific options.  See caches below
-                'options' => [
-                    'service' => 'my_psr6_service_from_container',
-                    'key' => 'my_key_',
-                    'ttl' => 3000
-                ], 
-            ],
-            
-        ],
-        
-        'fileSystems' => [
-            # Array Keys are the file systems identifiers
-            'local' => [
-                'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                'cache' => 'PSR6\Cache\Service', # Cache name from adaptor configuration
-                'plugins' => [] # User defined plugins to be injected into the file system
-            ],
-            
-            # Mount Manager Config
-            'manager' => [
-                'adaptor' => 'manager',
-                'fileSystems' => [
-                    'local' => [
-                        'adaptor' => 'adaptor_one', # Adaptor name from adaptor configuration
-                        'cache' => 'cache_one', # PSR-6 pre-configured service
-                        'plugins' => [] # User defined plugins to be injected into the file system
-                    ],
-                    
-                    'anotherFileSystem' => [
-                        'adaptor' => 'adaptor_two', # Adaptor name from adaptor configuration
-                        'cache' => 'cache_two', # PSR-6 pre-configured service
-                        'plugins' => [] # User defined plugins to be injected into the file system
-                    ],
-                ],
-            ],
-        ],
-    ],
-];
-
-```
