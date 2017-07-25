@@ -7,6 +7,12 @@ class ConfigProvider
 {
     public function __invoke()
     {
-        return require __DIR__.'/../config/flysystem.config.php';
+        return [
+            'dependencies' => [
+                'factories'  => [
+                    FlySystemManager::class => FlySystemManagerFactory::class
+                ],
+            ],
+        ];
     }
 }
