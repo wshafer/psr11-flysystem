@@ -43,7 +43,7 @@ class CacheManager implements ContainerInterface
      */
     public function get($id)
     {
-        if ($id == 'default') {
+        if (empty($id)) {
             return $this->cacheMapper->get('memory', []);
         }
 

@@ -114,9 +114,9 @@ class CacheManagerTest extends TestCase
         $this->assertEquals($this->mockCache, $adaptor);
     }
 
-    public function testGetDefault()
+    public function testGetNoneDefined()
     {
-        $name = 'default';
+        $name = '';
 
         $this->mockConfig->expects($this->never())
             ->method('hasCacheConfig')

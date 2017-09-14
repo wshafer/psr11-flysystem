@@ -106,18 +106,4 @@ class FileSystemConfigTest extends TestCase
             'adaptor' => 'manager'
         ]);
     }
-
-    public function testFailWithNoConfig()
-    {
-        $this->expectException(MissingConfigException::class);
-        new FileSystemConfig([]);
-    }
-
-    public function testFailWithNoType()
-    {
-        $this->expectException(MissingConfigException::class);
-        $this->setupFileSystemConfig();
-        unset($this->settings['adaptor']);
-        new FileSystemConfig($this->settings);
-    }
 }

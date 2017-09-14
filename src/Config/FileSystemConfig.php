@@ -20,31 +20,10 @@ class FileSystemConfig
      */
     public function __construct(array $config)
     {
-        $this->validateConfig($config);
         $this->config = $config;
 
         if ($this->isManager()) {
             $this->buildManagerFileSystemConfigs();
-        }
-    }
-
-    /**
-     * Validate the config array
-     *
-     * @param $config
-     */
-    public function validateConfig($config)
-    {
-        if (empty($config)) {
-            throw new MissingConfigException(
-                'No config found'
-            );
-        }
-
-        if (empty($config['adaptor'])) {
-            throw new MissingConfigException(
-                'No config key of "type" found in adaptor config array.'
-            );
         }
     }
 
@@ -55,7 +34,7 @@ class FileSystemConfig
      */
     public function getAdaptor()
     {
-        return $this->config['adaptor'];
+        return $this->config['adaptor'] ?? 'default';
     }
 
     /**

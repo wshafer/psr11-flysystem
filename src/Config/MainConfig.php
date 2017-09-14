@@ -17,14 +17,14 @@ class MainConfig
 
     public function __construct(array $config)
     {
-        $this->validateConfig($config);
+        $this->validateConfigAndSetDefaults($config);
         $this->config = $config;
         $this->buildAdaptorConfigs();
         $this->buildFileSystemConfigs();
         $this->buildCacheConfigs();
     }
 
-    public function validateConfig($config)
+    public function validateConfigAndSetDefaults(&$config)
     {
         if (empty($config)
             || empty($config['flysystem'])
@@ -40,10 +40,12 @@ class MainConfig
             );
         }
 
-        if (empty($config['flysystem']['fileSystems'])) {
-            throw new MissingConfigException(
-                'No config key of "adaptors" found in flysystem config array.'
-            );
+        if (empty($config['flysystem']['fileSystems']['default'])) {
+            $config['flysystem']['fileSystems']['default'] = [];
+        }
+
+        if (empty($config['flysystem']['caches']['default'])) {
+            $config['flysystem']['caches']['default']['type'] = 'memory';
         }
     }
 
