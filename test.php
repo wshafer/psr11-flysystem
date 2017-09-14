@@ -59,6 +59,6 @@ $container = new \Xtreamwayz\Pimple\Container([
 ]);
 
 /** @var \League\Flysystem\FilesystemInterface $fileSystem */
-$fileSystem = $serviceManager->get('other');
-$fileSystem->put('test1.txt', 'this is also test 2');
+$fileSystem = $serviceManager->get('fileSystem');
+$fileSystem->put('default.txt', 'this is also test 2');
 print $fileSystem->get('test1.txt')->read();
