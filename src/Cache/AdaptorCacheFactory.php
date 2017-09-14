@@ -11,6 +11,13 @@ use WShafer\PSR11FlySystem\FlySystemManager;
 
 class AdaptorCacheFactory extends ContainerAwareCacheAbstract
 {
+    /**
+     * @param array $options
+     *
+     * @return Adapter
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     */
     public function __invoke(array $options)
     {
         if (empty($options['adaptor'])) {
