@@ -179,13 +179,6 @@ class MainConfigTest extends TestCase
         new MainConfig($this->settings);
     }
 
-    public function testFailWithNoFileSystems()
-    {
-        $this->expectException(MissingConfigException::class);
-        unset($this->settings['flysystem']['fileSystems']);
-        new MainConfig($this->settings);
-    }
-
     public function testFailWithNoAdaptors()
     {
         $this->expectException(MissingConfigException::class);

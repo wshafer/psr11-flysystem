@@ -39,6 +39,8 @@
         - [Predis](#predis)
         - [Memcached](#memcached)
         - [Stash](#stash)
+- [Upgrades](#upgrades)    
+    - [Version 1 to version 2](#version-1-to-version-2)
 
 
 # Installation
@@ -66,159 +68,198 @@ Additional info can be found in the [documentation](https://flysystem.thephpleag
 
 # Containers
 Any PSR-11 container wil work.  In order to do that you will need to add configuration
-and register the factory \WShafer\PSR11FlySystem\FlySystemManagerFactory()
+and register a new service that points to `WShafer\PSR11FlySystem\FlySystemFactory` 
 
 Below are some specific container examples to get you started
 
 ## Pimple Example
 ```php
 // Create Container
-$container = new \Interop\Container\Pimple\PimpleInterop(
-    null,
-    [
-        \WShafer\PSR11FlySystem\FlySystemManager::class
-            => new \WShafer\PSR11FlySystem\FlySystemManagerFactory(),
-
-        'config' => [
-            'flysystem' => [
-                'adaptors' => [
-                    'myFiles' => [
-                        'type' => 'local',
-                        'options' => [
-                            'root' => '/tmp/pimple'
-                        ],
+$container = new \Xtreamwayz\Pimple\Container([
+    // FlySystem using the default keys.
+    'fileSystem' => new \WShafer\PSR11FlySystem\FlySystemFactory(),
+    
+    // FlySystem using a different filesystem configuration
+    'other' => function($c) {
+        return \WShafer\PSR11FlySystem\FlySystemFactory::other($c);
+    },
+    
+    // Config
+    'config' => [
+        'flysystem' => [
+            'adaptors' => [
+                // At the bare minimum you must include a default adaptor.
+                'default' => [  
+                    'type' => 'local',
+                    'options' => [
+                        'root' => '/tmp/pimple'
                     ],
                 ],
-
-                'fileSystems' => [
-                    // Array Keys are the file systems identifiers
-                    'myFiles' => [
-                        'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
+                
+                // Some other Adaptor.  Keys are the names for each adaptor
+                'someOtherAdaptor' => [
+                    'type' => 'local',
+                    'options' => [
+                        'root' => '/tmp/pimple'
                     ],
                 ],
             ],
-        ]
+            
+            'fileSystems' => [
+                'other' => [
+                    'adaptor' => 'someOtherAdaptor'
+                ],
+            ],
+        ],
     ]
-);
+]);
 
-$manager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
-$fileSystem = $manager->get('myFiles');
-$fileSystem->put('test2.txt', 'this is also test 2');
-print $fileSystem->get('test2.txt')->read();
+/** @var \League\Flysystem\FilesystemInterface $fileSystem */
+$fileSystem = $container->get('other');
+$fileSystem->put('test1.txt', 'this is a test');
+print $fileSystem->get('test1.txt')->read();
 ```
 
 ## Zend Service Manager
 
 ```php
+// Create the container and define the services you'd like to use
 $container = new \Zend\ServiceManager\ServiceManager([
     'factories' => [
-        \WShafer\PSR11FlySystem\FlySystemManager::class
-        =>\WShafer\PSR11FlySystem\FlySystemManagerFactory::class
-    ]
+        // FlySystem using the default keys.
+        'fileSystem' => \WShafer\PSR11FlySystem\FlySystemFactory::class,
+        
+        // FlySystem using a different filesystem configuration
+        'other' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'other'],
+    ],
 ]);
 
+// Config
 $container->setService('config', [
     'flysystem' => [
         'adaptors' => [
-            'myFiles' => [
+            // At the bare minimum you must include a default adaptor.
+            'default' => [  
                 'type' => 'local',
                 'options' => [
-                    'root' => '/tmp/pimple'
+                    'root' => '/tmp/zend'
                 ],
             ],
-        ],
-
-        'fileSystems' => [
-            // Array Keys are the file systems identifiers
-            'myFiles' => [
-                'adaptor' => 'myFiles', # Adaptor name from adaptor configuration
-            ],
-        ],
-    ],
-]);
-
-/** @var \WShafer\PSR11FlySystem\FlySystemManager $manager */
-$manager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
-$fileSystem = $manager->get('myFiles');
-$fileSystem->put('test2.txt', 'this is also test 2');
-print $fileSystem->get('test2.txt')->read();
-```
-
-# Frameworks
-Any framework that use a PSR-11 should work fine.   Below are some specific framework examples to get you started
-
-## Zend Expressive
-If your using Zend Expressive using the [Config Manager](https://zend-expressive.readthedocs.io/en/latest/cookbook/modular-layout/)
-and [Zend Component Installer](https://github.com/zendframework/zend-component-installer) (Default in Version 2) you should 
-be all set to go.  Simply add your Fly System configuration and you should be in business.
-
-### Configuration
-config/autoload/local.php
-```php
-<?php
-return [
-    'flysystem' => [
-        'adaptors' => [
-            'myFiles' => [
-                'type' => 'local',
-                'options' => [
-                    'root' => '/tmp/pimple'
-                ],
-            ],
-        ],
-
-        'fileSystems' => [
-            // Array Keys are the file systems identifiers
-            'myFiles' => [
-                'adaptor' => 'myFiles', // Adaptor name from adaptor configuration
-            ],
-        ],
-    ],
-];
-```
-
-### Container Service Config
-If you're not using the [Zend Component Installer](https://github.com/zendframework/zend-component-installer) you will 
-also need to register the manager
-
-config/autoload/dependencies.global.php
-```php
-<?php
-
-return [
-    'dependencies' => [
-        'factories' => [
-            \WShafer\PSR11FlySystem\FlySystemManager::class
-                =>\WShafer\PSR11FlySystem\FlySystemManagerFactory::class
-        ]
-    ],
-];
-```
-
-## Zend Framework 3
-If your using Zend Framework with the [Zend Component Installer](https://github.com/zendframework/zend-component-installer)
-(Default in Version 3) you should be all set to go.  Simply add your Fly System configuration and you should be in 
-business.
-
-### Configuration
-config/autoload/local.php
-```php
-<?php
-return [
-    'flysystem' => [
-        'adaptors' => [
-            'myFiles' => [
+            
+            // Some other Adaptor.  Keys are the names for each adaptor
+            'someOtherAdaptor' => [
                 'type' => 'local',
                 'options' => [
                     'root' => '/tmp/zend'
                 ],
             ],
         ],
-
+        
         'fileSystems' => [
-            // Array Keys are the file systems identifiers
-            'myFiles' => [
-                'adaptor' => 'myFiles', // Adaptor name from adaptor configuration
+            'other' => [
+                'adaptor' => 'someOtherAdaptor'
+            ],
+        ],
+    ],
+]);
+
+/** @var \League\Flysystem\FilesystemInterface $fileSystem */
+$fileSystem = $container->get('other');
+$fileSystem->put('test1.txt', 'this is a test');
+print $fileSystem->get('test1.txt')->read();
+```
+
+# Frameworks
+Any framework that use a PSR-11 should work fine.   Below are some specific framework examples to get you started
+
+## Zend Expressive
+You'll need to add configuration and register the services you'd like to use.  There are number of ways to do that
+but the recommended way is to create a new config file `config/autoload/flySystem.global.php`
+
+### Configuration
+config/autoload/flySystem.global.php
+```php
+<?php
+return [
+    'dependencies' => [
+        'factories' => [
+            // FlySystem using the default keys.
+            'fileSystem' => \WShafer\PSR11FlySystem\FlySystemFactory::class,
+            
+            // FlySystem using a different filesystem configuration
+            'other' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'other'],
+        ],
+    ],
+    
+    'flysystem' => [
+        'adaptors' => [
+            // At the bare minimum you must include a default adaptor.
+            'default' => [  
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/zend'
+                ],
+            ],
+            
+            // Some other Adaptor.  Keys are the names for each adaptor
+            'someOtherAdaptor' => [
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/zend'
+                ],
+            ],
+        ],
+        
+        'fileSystems' => [
+            'other' => [
+                'adaptor' => 'someOtherAdaptor'
+            ],
+        ],
+    ],
+];
+```
+
+## Zend Framework 3
+You'll need to add configuration and register the services you'd like to use.  There are number of ways to do that
+but the recommended way is to create a new config file `config/autoload/flySystem.global.php`
+
+### Configuration
+config/autoload/flySystem.global.php
+```php
+<?php
+return [
+    'service_manager' => [
+        'factories' => [
+            // FlySystem using the default keys.
+            'fileSystem' => \WShafer\PSR11FlySystem\FlySystemFactory::class,
+            
+            // FlySystem using a different filesystem configuration
+            'other' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'other'],
+        ],
+    ],
+    
+    'flysystem' => [
+        'adaptors' => [
+            // At the bare minimum you must include a default adaptor.
+            'default' => [  
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/zend'
+                ],
+            ],
+            
+            // Some other Adaptor.  Keys are the names for each adaptor
+            'someOtherAdaptor' => [
+                'type' => 'local',
+                'options' => [
+                    'root' => '/tmp/zend'
+                ],
+            ],
+        ],
+        
+        'fileSystems' => [
+            'other' => [
+                'adaptor' => 'someOtherAdaptor'
             ],
         ],
     ],
@@ -261,30 +302,45 @@ in Symfony.
 app/config/config.yml (or equivalent)
 ```yaml
 parameters:
-  flysystem:
-    adaptors:
-      myFiles:
-        type: 'local'
-        options:
-          root: '/tmp/symfony'
-
-    fileSystems:
-      myFiles:
-        adaptor: 'myFiles'
+    flysystem:
+        adaptors:
+            # At the bare minimum you must include a default adaptor.
+            default:
+                type: local
+                options:
+                    root: /tmp/symfony
+            
+            # Some other Adaptor.  Keys are the names for each adaptor
+            someOtherAdaptor:
+                type: local
+                options:
+                    root: /tmp/symfony
+            
+        fileSystems:
+            other:
+                adaptor: someOtherAdaptor
 ```
 
 ### Container Service Config
 app/config/services.yml
 ```yaml
 services:
-    WShafer\PSR11FlySystem\FlySystemManager:
-        class: 'WShafer\PSR11FlySystem\FlySystemManager'
-        factory: 'WShafer\PSR11FlySystem\FlySystemManagerFactory:__invoke'
+    # FlySystem using the default keys.
+    fileSystem:
+        factory: 'WShafer\PSR11FlySystem\FlySystemFactory:__invoke'
+        class: 'League\Flysystem\FilesystemInterface'
         arguments: ['@service_container']
         public: true
-
-    WShafer\PSR11FlySystem\FlySystemManagerFactory:
-        class: 'WShafer\PSR11FlySystem\FlySystemManagerFactory'
+    
+    # FlySystem using a different filesystem configuration
+    other:
+        factory: ['WShafer\PSR11FlySystem\FlySystemFactory', __callStatic]
+        class: 'League\Flysystem\FilesystemInterface'
+        arguments: ['other', ['@service_container']]
+        public: true
+    
+    WShafer\PSR11FlySystem\FlySystemFactory:
+        class: 'WShafer\PSR11FlySystem\FlySystemFactory'
         public: true
 ```
 
@@ -308,9 +364,11 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
-        $manager = $this->container->get('WShafer\PSR11FlySystem\FlySystemManager');
-        $fileSystem = $manager->get('myFiles');
-        $fileSystem->write('test.txt', 'Hi there');
+        $fileSystem = $this->container->get('fileSystem');
+        $fileSystem->write('default.txt', 'Hi there');
+        
+        $fileSystem = $this->container->get('other');
+        $fileSystem->write('other.txt', 'Hi there');
     }
 }
 ```
@@ -330,7 +388,16 @@ $config = [
     'settings' => [
         'flysystem' => [
             'adaptors' => [
-                'myFiles' => [
+                // At the bare minimum you must include a default adaptor.
+                'default' => [
+                    'type' => 'local',
+                    'options' => [
+                        'root' => '/tmp/slim'
+                    ],
+                ],
+
+                // Some other Adaptor.  Keys are the names for each adaptor
+                'someOtherAdaptor' => [
                     'type' => 'local',
                     'options' => [
                         'root' => '/tmp/slim'
@@ -339,9 +406,8 @@ $config = [
             ],
 
             'fileSystems' => [
-                // Array Keys are the file systems identifiers
-                'myFiles' => [
-                    'adaptor' => 'myFiles', // Adaptor name from adaptor configuration
+                'other' => [
+                    'adaptor' => 'someOtherAdaptor'
                 ],
             ],
         ],
@@ -353,25 +419,25 @@ $app = new \Slim\App($config);
 // Wire up the factory
 $container = $app->getContainer();
 
-// Register the service with the container.
-$container[\WShafer\PSR11FlySystem\FlySystemManager::class] = new \WShafer\PSR11FlySystem\FlySystemManagerFactory();
+// FlySystem using the default keys.
+$container['fileSystem'] = new \WShafer\PSR11FlySystem\FlySystemFactory();
+
+// FlySystem using a different filesystem configuration
+$container['other'] = function ($c) {
+    return \WShafer\PSR11FlySystem\FlySystemFactory::other($c);
+};
 
 
 // Example usage
 $app->get('/example', function (Request $request, Response $response) {
     
-    // Get the manager
-    $manager = $this->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
-    
-    // Get the filesystem
-    $fileSystem = $manager->get('myFiles');
-    
-    // Write file
-    $fileSystem->put('test2.txt', 'this is also test 2');
-    
-    
-    $response->getBody()->write($fileSystem->get('test2.txt')->read());
-    return $response;
+    /** @var \League\Flysystem\FilesystemInterface $fileSystem */
+    $fileSystem = $this->get('fileSystem');
+    $fileSystem->put('default.txt', 'Hi there');
+
+    /** @var \League\Flysystem\FilesystemInterface $fileSystem */
+    $fileSystem = $this->get('other');
+    $fileSystem->put('other.txt', 'Hi there');
 });
 
 $app->run();
@@ -380,6 +446,11 @@ $app->run();
 # Configuration
 
 Fly System uses three types of services that will each need to be configured for your application.
+In addition you will need to create a named service that maps to the `\WShafer\PSR11FlySystem\FlySystemFactory`
+based on the container you are using.
+
+- Named Services : These are services names wired up to a factory.  The configuration will differ
+based on the type of container / framework in use.
 
 - [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
 an Azure container, S3, Local, Memory, etc.
@@ -394,38 +465,40 @@ a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up 
 file systems that need to interact with one another.
 
 ## Minimal Configuration
-A minimal configuration would consist of at least one fileSystems entry and one adaptor.
+A minimal configuration would consist of at least defining one service and the "default" adaptor.
 
-### Minimal Example
+### Minimal Example (using Zend Expressive for the example)
 ```php
 <?php
 
 return [
+    'dependencies' => [
+        'factories' => [
+            // FlySystem using the default keys.
+            'MyServiceName' => \WShafer\PSR11FlySystem\FlySystemFactory::class,
+        ],
+    ],
+    
     'flysystem' => [
         'adaptors' => [
             // Array Keys are the names used for the adaptor
-            'adaptor_one' => [
+            'default' => [
                 'type' => 'local', #A daptor name or pre-configured service from the container
+                
                 // Adaptor specific options.  See adaptors below
                 'options' => [
                     'root' => '/path/to/root', // Path on local filesystem
                 ],
             ],
         ],
-        
-        'fileSystems' => [
-            // Array Keys are the file systems identifiers
-            'local' => [
-                'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
-            ],
-        ],
     ],
 ];
-
 ```
-
+Using this setup you will be using the "default" file system with the "default" adaptor.  In this
+example we will be using the local file adaptor as the default.
 
 ## Full Configuration
+Note: An "default" adaptor is required.
 
 ### Full Example
 ```php
@@ -434,17 +507,18 @@ return [
 return [
     'flysystem' => [
         'adaptors' => [
-            // Array Keys are the names used for the adaptor
-            'adaptor_one' => [
-                'type' => 'local', // A daptor name or pre-configured service from the container
+            // Array Keys are the names used for the adaptor.  Default entry required for adaptors
+            'default' => [
+                'type' => 'local', // Adaptor name or pre-configured service from the container
+                
                 // Adaptor specific options.  See adaptors below
                 'options' => [
                     'root' => '/path/to/root', // Path on local filesystem
                 ],
             ],
             
-            'adaptor_two' => [
-                'type' => 'null', // A daptor name or pre-configured service from the container
+            'adaptorTwo' => [
+                'type' => 'null', // Adaptor name or pre-configured service from the container
                 'options' => [], // Adaptor specific options.  See adaptors below
             ],
         ],
@@ -474,9 +548,12 @@ return [
         ],
         
         'fileSystems' => [
-            // Array Keys are the file systems identifiers
-            'local' => [
-                'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
+            // Array Keys are the file systems identifiers.
+            //
+            // Note: You can specify "default" here to overwrite the default settings for the
+            // default file system
+            'default' => [
+                'adaptor' => 'default', // Adaptor name from adaptor configuration
                 'cache' => 'PSR6\Cache\Service', // Cache name from adaptor configuration
                 'plugins' => [] // User defined plugins to be injected into the file system
             ],
@@ -486,7 +563,7 @@ return [
                 'adaptor' => 'manager',
                 'fileSystems' => [
                     'local' => [
-                        'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
+                        'adaptor' => 'default', // Adaptor name from adaptor configuration
                         'cache' => 'cache_one', // PSR-6 pre-configured service
                         'plugins' => [] // User defined plugins to be injected into the file system
                     ],
@@ -533,7 +610,7 @@ Example configs for supported adaptors
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'null',
                 'options' => [], #No options available
             ],
@@ -551,7 +628,7 @@ FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-t
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'local',
                 'options' => [
                     'root' => '/path/to/root', // Path on local filesystem
@@ -584,7 +661,7 @@ FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'ftp',
                 'options' => [
                     'host' => 'ftp.example.com',
@@ -619,7 +696,7 @@ composer require league/flysystem-sftp
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'ftp',
                 'options' => [
                     'host' => 'example.com',
@@ -652,7 +729,7 @@ composer require league/flysystem-memory
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'memory',
                 'options' => [],
             ],
@@ -677,7 +754,7 @@ composer require league/flysystem-ziparchive
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'zip',
                 'options' => [
                     'path' => '/some/path/to/file.zip'    
@@ -704,7 +781,7 @@ composer require league/flysystem-azure
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'azure',
                 'options' => [
                     'accountName' => 'account-name',
@@ -734,7 +811,7 @@ composer require league/flysystem-aws-s3-v3
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 's3',
                 'options' => [
                     'key' => 'aws-key',
@@ -765,7 +842,7 @@ composer require spatie/flysystem-dropbox
 return [
     'flysystem' => [
         'adaptors' => [
-            'myAdaptorName' => [
+            'default' => [
                 'type' => 'dropbox',
                 'options' => [
                     'token'   => 'my-token',
@@ -789,7 +866,7 @@ Example configs for supported caches
 return [
     'flysystem' => [
         'caches' => [
-            'local' => [
+            'default' => [
                 'type' => 'memory',
                 'options' => [], #No options available
             ],
@@ -810,7 +887,7 @@ from the existing manager.
 return [
     'flysystem' => [
         'caches' => [
-            'local' => [
+            'default' => [
                 'type' => 'adaptor',
                 'options' => [
                     'managerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, // Optional.  Only needed if you change the service name of the Fly Manager
@@ -833,7 +910,7 @@ FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 return [
     'flysystem' => [
         'caches' => [
-            'local' => [
+            'default' => [
                 'type' => 'psr6',
                 'options' => [
                     'service' => 'my_psr6_service_from_container', // Service to be used from the container
@@ -855,7 +932,7 @@ FlySystem Docs: Unknown
 return [
     'flysystem' => [
         'caches' => [
-            'local' => [
+            'default' => [
                 'type' => 'predis',
                 'options' => [
                     'service' => 'my_predis_client_from_container', // Configured Predis Client Service to pull from container
@@ -877,7 +954,7 @@ FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 return [
     'flysystem' => [
         'caches' => [
-            'local' => [
+            'default' => [
                 'type' => 'memcached',
                 'options' => [
                     'service' => 'my_memcached_client_from_container', // Configured Memcached Client Service to pull from container
@@ -897,3 +974,22 @@ See: [PSR6](#psr-6)
 
 _Note: While "The League" provides a native cache client, Stash itself already
 implements a PSR 6 interface.  It is recommended to use that instead._
+
+
+### Upgrades
+
+#### Version 1 to Version 2
+When upgrading from version 1 to version 2, there shouldn't be any changes needed.   Please note
+that using the FlySystemManager directly is no longer recommended.  Named services
+should be used instead.  See above for more info.
+
+##### Changes
+* A "default" filesystem entry is added automatically to the config.  This default
+file system requires you to either specify a configured adaptor for the filesystem
+OR there must be a default adaptor configured in order to use it.  Most Version 1
+users should not have an issue with this change and the factories should still function
+normally.
+
+* The default cache can now be overwritten and reconfigured.   Previously a
+"memory" cache was always used when the file system didn't state the cache to use.
+ 
