@@ -480,7 +480,7 @@ return [
         'adaptors' => [
             // Array Keys are the names used for the adaptor
             'default' => [
-                'type' => 'local', #A daptor name or pre-configured service from the container
+                'type' => 'local', # Adaptor name or pre-configured service from the container
                 
                 // Adaptor specific options.  See adaptors below
                 'options' => [
@@ -516,7 +516,7 @@ return [
             
             'adaptorTwo' => [
                 'type' => 'null', // Adaptor name or pre-configured service from the container
-                'options' => [], // Adaptor specific options.  See adaptors below
+                'options' => [],  // Adaptor specific options.  See adaptors below
             ],
         ],
         
@@ -535,7 +535,7 @@ return [
                 ], 
             ],
             
-            'cache_two' => [
+            'cacheTwo' => [
                 'type' => 'psr6',
                 // Cache specific options.  See caches below
                 'options' => [
@@ -554,8 +554,8 @@ return [
             // default file system
             'default' => [
                 'adaptor' => 'default', // Adaptor name from adaptor configuration
-                'cache' => 'default', // Cache name from adaptor configuration
-                'plugins' => [] // User defined plugins to be injected into the file system
+                'cache' => 'default',   // Cache name from adaptor configuration
+                'plugins' => []         // User defined plugins to be injected into the file system
             ],
             
             // Mount Manager Config
@@ -564,14 +564,14 @@ return [
                 'fileSystems' => [
                     'local' => [
                         'adaptor' => 'default', // Adaptor name from adaptor configuration
-                        'cache' => 'cache_one', // PSR-6 pre-configured service
-                        'plugins' => [] // User defined plugins to be injected into the file system
+                        'cache' => 'default',   // PSR-6 pre-configured service
+                        'plugins' => []         // User defined plugins to be injected into the file system
                     ],
                     
                     'anotherFileSystem' => [
-                        'adaptor' => 'adaptor_two', // Adaptor name from adaptor configuration
-                        'cache' => 'cache_two', // PSR-6 pre-configured service
-                        'plugins' => [] // User defined plugins to be injected into the file system
+                        'adaptor' => 'adaptorTwo', // Adaptor name from adaptor configuration
+                        'cache' => 'cacheTwo',     // PSR-6 pre-configured service
+                        'plugins' => []            // User defined plugins to be injected into the file system
                     ],
                 ],
             ],
@@ -590,9 +590,9 @@ return [
         'fileSystems' => [
             // Array Keys are the file systems identifiers
             'myFileSystemName' => [
-                'adaptor' => 'default', // Adaptor name from adaptor configuration
-                'cache' => 'default', // Cache name from adaptor configuration
-                'plugins' => [] // User defined plugins to be injected into the file system
+                'adaptor' => 'default', // Required : Adaptor name from adaptor configuration
+                'cache' => 'default',   // Optional : Cache name from adaptor configuration
+                'plugins' => []         // Optional : User defined plugins to be injected into the file system
             ],
         ],
     ],
@@ -631,9 +631,11 @@ return [
             'default' => [
                 'type' => 'local',
                 'options' => [
-                    'root' => '/path/to/root', // Path on local filesystem
-                    'writeFlags' => LOCK_EX, // PHP flags.  See: file_get_contents for more info
-                    'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, #Link behavior
+                    'root' => '/path/to/root', // Required : Path on local filesystem
+                    'writeFlags' => LOCK_EX,   // Optional : PHP flags.  See: file_get_contents for more info
+                    'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, // Optional : Link behavior
+                    
+                    // Optional:  Optional set of permissions to set for files
                     'permissions' => [
                         'file' => [
                             'public' => 0644,
@@ -664,11 +666,11 @@ return [
             'default' => [
                 'type' => 'ftp',
                 'options' => [
-                    'host' => 'ftp.example.com',
-                    'username' => 'username',
-                    'password' => 'password',
+                    'host' => 'ftp.example.com', // Required : Host
+                    'username' => 'username',    // Required : Username
+                    'password' => 'password',    // Required : Password
                 
-                    /** optional config settings */
+                    // optional config settings
                     'port' => 21,
                     'root' => '/path/to/root',
                     'passive' => true,
@@ -697,15 +699,15 @@ return [
     'flysystem' => [
         'adaptors' => [
             'default' => [
-                'type' => 'ftp',
+                'type' => 'sftp',
                 'options' => [
-                    'host' => 'example.com',
-                    'port' => 21,
-                    'username' => 'username',
-                    'password' => 'password',
-                    'privateKey' => 'path/to/or/contents/of/privatekey',
-                    'root' => '/path/to/root',
-                    'timeout' => 10,
+                    'host' => 'example.com',                              // Required : Host
+                    'port' => 21,                                         // Optional : Port
+                    'username' => 'username',                             // Optional : Username
+                    'password' => 'password',                             // Optional : Password
+                    'privateKey' => 'path/to/or/contents/of/privatekey',  // Optional : Host
+                    'root' => '/path/to/root',                            // Required : Root Path
+                    'timeout' => 10,                                      // Optional : Timeout
                 ],
             ],
         ],
@@ -731,7 +733,7 @@ return [
         'adaptors' => [
             'default' => [
                 'type' => 'memory',
-                'options' => [],
+                'options' => [],  // No options available
             ],
         ],
     ],
@@ -757,7 +759,7 @@ return [
             'default' => [
                 'type' => 'zip',
                 'options' => [
-                    'path' => '/some/path/to/file.zip'    
+                    'path' => '/some/path/to/file.zip' // Required : File name and path to use for zip file
                 ],
             ],
         ],
@@ -784,10 +786,10 @@ return [
             'default' => [
                 'type' => 'azure',
                 'options' => [
-                    'accountName' => 'account-name',
-                    'apiKey' => 'api-key',
-                    'container' => 'container-name',
-                    'prefix' => 'prefix_',  // Optional
+                    'accountName' => 'account-name',  // Required : Account Name
+                    'apiKey' => 'api-key',            // Required : API Key
+                    'container' => 'container-name',  // Required : Container name
+                    'prefix' => 'prefix_',            // Optional
                 ],
             ],
         ],
@@ -814,12 +816,12 @@ return [
             'default' => [
                 'type' => 's3',
                 'options' => [
-                    'key' => 'aws-key',
-                    'secret'  => 'aws-secret',
-                    'region'  => 'us-east-1',
-                    'bucket'  => 'bucket-name',
-                    'prefix'  => 'some/prefix', #optional
-                    'version' => 'latest' // Default: 'latest'
+                    'key' => 'aws-key',         // Required : Key
+                    'secret'  => 'aws-secret',  // Required : Secret
+                    'region'  => 'us-east-1',   // Required : Region
+                    'bucket'  => 'bucket-name', // Required : Bucket Name
+                    'prefix'  => 'some/prefix', // Optional : Prefix
+                    'version' => 'latest'       // Optional : Api Version.  Default: 'latest'
                 ],
             ],
         ],
@@ -845,8 +847,8 @@ return [
             'default' => [
                 'type' => 'dropbox',
                 'options' => [
-                    'token'   => 'my-token',
-                    'prefix'  => 'prefix', #optional
+                    'token'   => 'my-token', // Required : API Token
+                    'prefix'  => 'prefix',   // Optional : Prefix
                 ],
             ],
         ],
@@ -868,7 +870,7 @@ return [
         'caches' => [
             'default' => [
                 'type' => 'memory',
-                'options' => [], #No options available
+                'options' => [], // No options available
             ],
         ],
     ],
@@ -890,10 +892,9 @@ return [
             'default' => [
                 'type' => 'adaptor',
                 'options' => [
-                    'managerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, // Optional.  Only needed if you change the service name of the Fly Manager
-                    'fileSystem' => 'MyFileSystemName', // Filesystem name found in the FileSystems config
-                    'fileName' => 'my_cache_file', // File name for cache file
-                    'ttl' => 300
+                    'adaptor' => 'MyAdaptorName',  // Required : Adaptor name found in the adaptor config
+                    'fileName' => 'my_cache_file', // Required : File name for cache file
+                    'ttl' => 300                   // Optional : Time to live
                 ], 
             ],
         ],
@@ -913,9 +914,9 @@ return [
             'default' => [
                 'type' => 'psr6',
                 'options' => [
-                    'service' => 'my_psr6_service_from_container', // Service to be used from the container
-                    'key' => 'my_key_', // Cache Key
-                    'ttl' => 3000 // Expires
+                    'service' => 'my_psr6_service_from_container', // Required : Service to be used from the container
+                    'key' => 'my_key_',                            // Required : Cache Key
+                    'ttl' => 3000                                  // Optional : Time to live
                 ],
             ],
         ],
@@ -935,9 +936,9 @@ return [
             'default' => [
                 'type' => 'predis',
                 'options' => [
-                    'service' => 'my_predis_client_from_container', // Configured Predis Client Service to pull from container
-                    'key' => 'my_key_', // Cache Key
-                    'ttl' => 3000 // Expires
+                    'service' => 'my_predis_client_from_container', // Required : Configured Predis Client Service to pull from container
+                    'key' => 'my_key_',                             // Required : Cache Key
+                    'ttl' => 3000                                   // Optional : Time to live
                 ],
             ],
         ],
@@ -957,9 +958,9 @@ return [
             'default' => [
                 'type' => 'memcached',
                 'options' => [
-                    'service' => 'my_memcached_client_from_container', // Configured Memcached Client Service to pull from container
-                    'key' => 'my_key_', // Cache Key
-                    'ttl' => 3000 // Expires
+                    'service' => 'my_memcached_client_from_container', // Required : Configured Memcached Client Service to pull from container
+                    'key' => 'my_key_',                                // Required : Cache Key
+                    'ttl' => 3000                                      // Optional : Time to live
                 ],
             ],
         ],

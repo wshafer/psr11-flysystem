@@ -6,33 +6,33 @@ namespace WShafer\PSR11FlySystem\Cache;
 use League\Flysystem\Cached\Storage\Adapter;
 use WShafer\PSR11FlySystem\Exception\MissingConfigException;
 use WShafer\PSR11FlySystem\Exception\MissingServiceException;
+use WShafer\PSR11FlySystem\FlySystemFactory;
 use WShafer\PSR11FlySystem\FlySystemManager;
 
 class AdaptorCacheFactory extends ContainerAwareCacheAbstract
 {
     public function __invoke(array $options)
     {
-        $managerServiceName = $options['managerServiceName'] ?? FlySystemManager::class;
-
-        if (empty($options['fileSystem'])) {
+        if (empty($options['adaptor'])) {
             throw new MissingConfigException(
                 'Unable to locate cache file adaptor in config'
             );
         }
 
-        $fileSystem = $options['fileSystem'];
+        $adaptor = $options['adaptor'];
         $fileName = $options['fileName'] ?? 'file_cache';
         $ttl = $options['ttl'] ?? null;
 
         /** @var FlySystemManager $manager */
-        $manager = $this->getService($managerServiceName);
+        $manager = FlySystemFactory::getFlySystemManager($this->getContainer());
+        $adaptorManager = $manager->getAdaptorManager();
 
-        if (!$manager->has($fileSystem)) {
+        if (!$adaptorManager->has($adaptor)) {
             throw new MissingServiceException(
-                'Unable to locate file system: '.$fileSystem
+                'Unable to locate file system: '.$adaptor
             );
         }
 
-        return new Adapter($manager->get($fileSystem), $fileName, $ttl);
+        return new Adapter($adaptorManager->get($adaptor), $fileName, $ttl);
     }
 }
