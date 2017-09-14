@@ -522,7 +522,10 @@ return [
         
         'caches' => [
             // Array Keys are the names used for the cache
-            'cache_one' => [
+            //
+            // Note: You can specify "default" here to overwrite the default settings for the
+            // default cache.  Memory is used if not specified
+            'default' => [
                 'type' => 'psr6',
                 // Cache specific options.  See caches below
                 'options' => [
@@ -551,7 +554,7 @@ return [
             // default file system
             'default' => [
                 'adaptor' => 'default', // Adaptor name from adaptor configuration
-                'cache' => 'PSR6\Cache\Service', // Cache name from adaptor configuration
+                'cache' => 'default', // Cache name from adaptor configuration
                 'plugins' => [] // User defined plugins to be injected into the file system
             ],
             
@@ -586,9 +589,9 @@ return [
     'flysystem' => [
         'fileSystems' => [
             // Array Keys are the file systems identifiers
-            'local' => [
-                'adaptor' => 'adaptor_one', // Adaptor name from adaptor configuration
-                'cache' => 'PSR6\Cache\Service', // Cache name from adaptor configuration
+            'myFileSystemName' => [
+                'adaptor' => 'default', // Adaptor name from adaptor configuration
+                'cache' => 'default', // Cache name from adaptor configuration
                 'plugins' => [] // User defined plugins to be injected into the file system
             ],
         ],
@@ -607,7 +610,7 @@ Example configs for supported adaptors
 return [
     'flysystem' => [
         'adaptors' => [
-            'default' => [
+            'myAdaptorName' => [
                 'type' => 'null',
                 'options' => [], #No options available
             ],
