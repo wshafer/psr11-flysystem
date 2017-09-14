@@ -54,14 +54,11 @@ composer require wshafer/psr11-flysystem
 ```php
 <?php
 
-// Get the file system manager from the container
-$flySystemManager = $container->get(\WShafer\PSR11FlySystem\FlySystemManager::class);
-
 // Get the FlySystem FileSystem
-$fileSystem = $flySystemManager->get('local');
+$fileSystem = $container->get('myFileSystemService');
 
 // Write to file
-$fileSystem->put('test2.txt', 'this is also test 2');
+$fileSystem->put('test.txt', 'this is test');
 ```
 
 Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)
