@@ -447,7 +447,10 @@ $app->run();
 
 Fly System uses three types of services that will each need to be configured for your application.
 In addition you will need to create a named service that maps to the `\WShafer\PSR11FlySystem\FlySystemFactory`
-base on the container you are using.
+based on the container you are using.
+
+- Named Services : These are services names wired up to a factory.  The configuration will differ
+based on the type of container / framework in use.
 
 - [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
 an Azure container, S3, Local, Memory, etc.
