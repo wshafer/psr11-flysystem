@@ -866,7 +866,7 @@ Example configs for supported caches
 return [
     'flysystem' => [
         'caches' => [
-            'myCacheName' => [
+            'default' => [
                 'type' => 'memory',
                 'options' => [], #No options available
             ],
@@ -887,7 +887,7 @@ from the existing manager.
 return [
     'flysystem' => [
         'caches' => [
-            'myCacheName' => [
+            'default' => [
                 'type' => 'adaptor',
                 'options' => [
                     'managerServiceName' => \WShafer\PSR11FlySystem\FlySystemManager::class, // Optional.  Only needed if you change the service name of the Fly Manager
@@ -910,7 +910,7 @@ FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 return [
     'flysystem' => [
         'caches' => [
-            'myCacheName' => [
+            'default' => [
                 'type' => 'psr6',
                 'options' => [
                     'service' => 'my_psr6_service_from_container', // Service to be used from the container
@@ -932,7 +932,7 @@ FlySystem Docs: Unknown
 return [
     'flysystem' => [
         'caches' => [
-            'myCacheName' => [
+            'default' => [
                 'type' => 'predis',
                 'options' => [
                     'service' => 'my_predis_client_from_container', // Configured Predis Client Service to pull from container
@@ -954,7 +954,7 @@ FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
 return [
     'flysystem' => [
         'caches' => [
-            'myCacheName' => [
+            'default' => [
                 'type' => 'memcached',
                 'options' => [
                     'service' => 'my_memcached_client_from_container', // Configured Memcached Client Service to pull from container
