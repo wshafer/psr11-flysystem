@@ -329,4 +329,16 @@ class FlySystemManagerTest extends TestCase
 
         $this->assertInstanceOf(MountManager::class, $fileSystem);
     }
+
+    public function testGetAdaptorManager()
+    {
+        $result = $this->manager->getAdaptorManager();
+        $this->assertEquals($this->mockContainer, $result);
+    }
+
+    public function testGetCacheManager()
+    {
+        $result = $this->manager->getCacheManager();
+        $this->assertEquals($this->mockContainer, $result);
+    }
 }

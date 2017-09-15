@@ -101,10 +101,6 @@ class MainConfig
 
     protected function buildCacheConfigs()
     {
-        if (empty($this->config['flysystem']['caches'])) {
-            return;
-        }
-
         foreach ($this->config['flysystem']['caches'] as $name => $cache) {
             $this->cache[$name] = new CacheConfig($cache);
         }

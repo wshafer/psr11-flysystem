@@ -9,7 +9,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use WShafer\PSR11FlySystem\Cache\AdaptorCacheFactory;
 use WShafer\PSR11FlySystem\Cache\Psr6CacheFactory;
+use WShafer\PSR11FlySystem\FlySystemFactory;
 use WShafer\PSR11FlySystem\FlySystemManager;
+use WShafer\PSR11FlySystem\Service\AdaptorManager;
 
 /**
  * @covers \WShafer\PSR11FlySystem\Cache\AdaptorCacheFactory
@@ -33,36 +35,36 @@ class AdaptorCacheFactoryTest extends TestCase
 
     public function testInvoke()
     {
+        $mockAdaptorManager = $this->getMockBuilder(AdaptorManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $mockService = $this->getMockBuilder(FlySystemManager::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $mockService->expects($this->once())
+            ->method('getAdaptorManager')
+            ->willReturn($mockAdaptorManager);
+
+        FlySystemFactory::setFlySystemManager($mockService);
 
         $mockFileAdaptor = $this->getMockBuilder(Local::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockService->expects($this->once())
+        $mockAdaptorManager->expects($this->once())
             ->method('get')
-            ->with('mockFileAdaptor')
+            ->with('myAdaptor')
             ->willReturn($mockFileAdaptor);
 
-        $mockService->expects($this->once())
+        $mockAdaptorManager->expects($this->once())
             ->method('has')
-            ->with('mockFileAdaptor')
-            ->willReturn(true);
-
-        $this->containerMock->expects($this->once())
-            ->method('get')
-            ->with(FlySystemManager::class)
-            ->willReturn($mockService);
-
-        $this->containerMock->expects($this->once())
-            ->method('has')
-            ->with(FlySystemManager::class)
+            ->with('myAdaptor')
             ->willReturn(true);
 
         $options = [
-            'fileSystem' => 'mockFileAdaptor',
+            'adaptor' => 'myAdaptor',
             'fileName' => 'cache_file',
             'ttl' => 300
         ];
@@ -78,7 +80,7 @@ class AdaptorCacheFactoryTest extends TestCase
     public function testInvokeServiceNotFound()
     {
         $options = [
-            'fileSystem' => null,
+            'adaptor' => null,
             'fileName' => 'cache_file',
             'ttl' => 300
         ];
@@ -91,98 +93,30 @@ class AdaptorCacheFactoryTest extends TestCase
      */
     public function testInvokeFileSystemNotFound()
     {
+        $mockAdaptorManager = $this->getMockBuilder(AdaptorManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $mockService = $this->getMockBuilder(FlySystemManager::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $mockService->expects($this->once())
+            ->method('getAdaptorManager')
+            ->willReturn($mockAdaptorManager);
+
+        FlySystemFactory::setFlySystemManager($mockService);
+
+        $mockAdaptorManager->expects($this->never())
+            ->method('get');
+
+        $mockAdaptorManager->expects($this->once())
             ->method('has')
-            ->with('mockFileAdaptor')
-            ->willReturn(false);
-
-        $mockService->expects($this->never())
-            ->method('get')
-            ->with('mockFileAdaptor');
-
-        $this->containerMock->expects($this->once())
-            ->method('get')
-            ->with(FlySystemManager::class)
-            ->willReturn($mockService);
-
-        $this->containerMock->expects($this->once())
-            ->method('has')
-            ->with(FlySystemManager::class)
-            ->willReturn(true);
-
-        $options = [
-            'fileSystem' => 'mockFileAdaptor',
-            'fileName' => 'cache_file',
-            'ttl' => 300
-        ];
-
-        /** @var Adapter $cache */
-        $cache = call_user_func($this->factory, $options);
-    }
-
-    public function testInvokeWithCustomServiceName()
-    {
-        $mockService = $this->getMockBuilder(FlySystemManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockFileAdaptor = $this->getMockBuilder(Local::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockService->expects($this->once())
-            ->method('get')
-            ->with('mockFileAdaptor')
-            ->willReturn($mockFileAdaptor);
-
-        $mockService->expects($this->once())
-            ->method('has')
-            ->with('mockFileAdaptor')
-            ->willReturn(true);
-
-        $this->containerMock->expects($this->once())
-            ->method('get')
-            ->with('MyRenamedService')
-            ->willReturn($mockService);
-
-        $this->containerMock->expects($this->once())
-            ->method('has')
-            ->with('MyRenamedService')
-            ->willReturn(true);
-
-        $options = [
-            'managerServiceName' => 'MyRenamedService',
-            'fileSystem' => 'mockFileAdaptor',
-            'fileName' => 'cache_file',
-            'ttl' => 300
-        ];
-
-        /** @var Adapter $cache */
-        $cache = call_user_func($this->factory, $options);
-        $this->assertInstanceOf(Adapter::class, $cache);
-    }
-
-    /**
-     * @expectedException \WShafer\PSR11FlySystem\Exception\MissingServiceException
-     */
-    public function testCantFindCustomServiceName()
-    {
-        $this->containerMock->expects($this->never())
-            ->method('get')
-            ->with('notHere');
-
-        $this->containerMock->expects($this->once())
-            ->method('has')
-            ->with('notHere')
+            ->with('myAdaptor')
             ->willReturn(false);
 
         $options = [
-            'managerServiceName' => 'notHere',
-            'fileSystem' => 'mockFileAdaptor',
+            'adaptor' => 'myAdaptor',
             'fileName' => 'cache_file',
             'ttl' => 300
         ];

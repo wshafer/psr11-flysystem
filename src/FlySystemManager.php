@@ -138,4 +138,24 @@ class FlySystemManager implements ContainerInterface
     {
         return $this->config->hasFileSystemConfig($id);
     }
+
+    /**
+     * Get the Adaptor manager
+     *
+     * @return ContainerInterface
+     */
+    public function getAdaptorManager()
+    {
+        return $this->adaptorManager;
+    }
+
+    /**
+     * Get the Cache Manager
+     *
+     * @return mixed
+     */
+    public function getCacheManager()
+    {
+        return $this->cacheManager;
+    }
 }
