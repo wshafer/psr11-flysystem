@@ -3,18 +3,18 @@ declare(strict_types=1);
 
 namespace WShafer\PSR11FlySystem\Adaptor;
 
-use Aws\S3\S3Client;
-use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
-use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
+use AsyncAws\S3\S3Client;
+use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
+use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use League\Flysystem\Visibility;
 use Psr\Container\ContainerInterface;
 
-class S3AdapterFactory implements FactoryInterface, ContainerAwareInterface
+class AsyncAwsS3AdapterFactory implements FactoryInterface, ContainerAwareInterface
 {
     /** @var ContainerInterface */
     protected $container;
 
-    public function __invoke(array $options): AwsS3V3Adapter
+    public function __invoke(array $options): AsyncAwsS3Adapter
     {
         $bucket = $options['bucket'] ?? null;
         $prefix = $options['prefix'] ?? null;
@@ -25,7 +25,7 @@ class S3AdapterFactory implements FactoryInterface, ContainerAwareInterface
 
         $client = $this->getClient($options);
 
-        return new AwsS3V3Adapter($client, $bucket, $prefix, $permissions);
+        return new AsyncAwsS3Adapter($client, $bucket, $prefix, $permissions);
     }
 
     protected function getClient(array $options): S3Client
@@ -36,18 +36,14 @@ class S3AdapterFactory implements FactoryInterface, ContainerAwareInterface
             return $container->get($options['client']);
         }
 
-        $key = $options['key'] ?? null;
-        $secret = $options['secret'] ?? null;
+        $key = $options['accessKeyId'] ?? null;
+        $secret = $options['accessKeySecret'] ?? null;
         $region = $options['region'] ?? 'us-east-1';
-        $version = $options['version'] ?? 'latest';
 
         return new S3Client([
-            'version'     => $version,
-            'region'      => $region,
-            'credentials' => [
-                'key'    => $key,
-                'secret' => $secret
-            ]
+            'region' => $region,
+            'accessKeyId' => $key,
+            'accessKeySecret' => $secret
         ]);
     }
 

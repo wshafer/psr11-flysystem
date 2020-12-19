@@ -12,8 +12,8 @@
     - [Pimple](#pimple-example)
     - [Zend Service Manager](#zend-service-manager)
 - [Frameworks](#frameworks)
-    - [Zend Expressive](#zend-expressive)
-    - [Zend Framework 3](#zend-framework-3)
+    - [Mezzio](#mezzio)
+    - [Laminas](#laminas)
     - [Symfony](#symfony)
     - [Slim](#slim)
 - [Configuration](#configuration)
@@ -21,26 +21,16 @@
         - [Example](#minimal-example)
     - [Full Configuration](#full-configuration)
         - [Example](#full-example)
-    - [File System](#file-system)
     - [Adaptors](#adaptors)
-        - [Null / Test](#nulltest)
         - [Local](#local)
         - [FTP](#ftp)
         - [SFTP](#sftp)
         - [Memory](#memory)
         - [Zip Archive](#zip-archive)
-        - [Azure](#azure)
         - [AWS S3](#aws-s3)
-        - [DropBox](#dropbox)
-    - [Caches](#caches)
-        - [Memory / Test](#memorytest)
-        - [Adaptor](#adaptor)
-        - [PSR-6](#psr-6)
-        - [Predis](#predis)
-        - [Memcached](#memcached)
-        - [Stash](#stash)
+        - [AsyncAws S3 Adapter](#async-aws-s3-adapter)
 - [Upgrades](#upgrades)    
-    - [Version 1 to version 2](#version-1-to-version-2)
+    - [Version 2 to version 3](#version-2-to-version-3)
 
 
 # Installation
@@ -58,7 +48,7 @@ composer require wshafer/psr11-flysystem
 $fileSystem = $container->get('myFileSystemService');
 
 // Write to file
-$fileSystem->put('test.txt', 'this is test');
+$fileSystem->write('test.txt', 'this is test');
 ```
 
 Additional info can be found in the [documentation](https://flysystem.thephpleague.com/)
@@ -113,11 +103,11 @@ $container = new \Xtreamwayz\Pimple\Container([
 
 /** @var \League\Flysystem\FilesystemInterface $fileSystem */
 $fileSystem = $container->get('other');
-$fileSystem->put('test1.txt', 'this is a test');
-print $fileSystem->get('test1.txt')->read();
+$fileSystem->write('test1.txt', 'this is a test');
+print $fileSystem->read('test1.txt');
 ```
 
-## Zend Service Manager
+## Laminas Service Manager
 
 ```php
 // Create the container and define the services you'd like to use
@@ -144,32 +134,26 @@ $container->setService('config', [
             ],
             
             // Some other Adaptor.  Keys are the names for each adaptor
-            'someOtherAdaptor' => [
+            'other' => [
                 'type' => 'local',
                 'options' => [
                     'root' => '/tmp/zend'
                 ],
             ],
         ],
-        
-        'fileSystems' => [
-            'other' => [
-                'adaptor' => 'someOtherAdaptor'
-            ],
-        ],
     ],
 ]);
 
 /** @var \League\Flysystem\FilesystemInterface $fileSystem */
-$fileSystem = $container->get('other');
-$fileSystem->put('test1.txt', 'this is a test');
-print $fileSystem->get('test1.txt')->read();
+$fileSystem = $container->get('someOtherAdaptor');
+$fileSystem->write('test1.txt', 'this is a test');
+print $fileSystem->read('test1.txt');
 ```
 
 # Frameworks
 Any framework that use a PSR-11 should work fine.   Below are some specific framework examples to get you started
 
-## Zend Expressive
+## Mezzio
 You'll need to add configuration and register the services you'd like to use.  There are number of ways to do that
 but the recommended way is to create a new config file `config/autoload/flySystem.global.php`
 
@@ -184,7 +168,7 @@ return [
             'fileSystem' => \WShafer\PSR11FlySystem\FlySystemFactory::class,
             
             // FlySystem using a different filesystem configuration
-            'other' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'other'],
+            'someOtherAdaptor' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'someOtherAdaptor'],
         ],
     ],
     
@@ -206,17 +190,11 @@ return [
                 ],
             ],
         ],
-        
-        'fileSystems' => [
-            'other' => [
-                'adaptor' => 'someOtherAdaptor'
-            ],
-        ],
     ],
 ];
 ```
 
-## Zend Framework 3
+## Laminas
 You'll need to add configuration and register the services you'd like to use.  There are number of ways to do that
 but the recommended way is to create a new config file `config/autoload/flySystem.global.php`
 
@@ -231,7 +209,7 @@ return [
             'fileSystem' => \WShafer\PSR11FlySystem\FlySystemFactory::class,
             
             // FlySystem using a different filesystem configuration
-            'other' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'other'],
+            'someOtherAdaptor' => [\WShafer\PSR11FlySystem\FlySystemFactory::class, 'someOtherAdaptor'],
         ],
     ],
     
@@ -253,42 +231,9 @@ return [
                 ],
             ],
         ],
-        
-        'fileSystems' => [
-            'other' => [
-                'adaptor' => 'someOtherAdaptor'
-            ],
-        ],
     ],
 ];
 ```
-
-### Module Config
-If you're not using the [Zend Component Installer](https://github.com/zendframework/zend-component-installer) you will 
-also need to register the Module.
-
-config/modules.config.php (ZF 3 skeleton)
-```php
-<?php
-
-return [
-    // ... Previously registered modules here
-    'WShafer\\PSR11FlySystem',
-];
-```
-
-config/application.config.php (ZF 2 skeleton)
-```php
-<?php
-
-return [
-    'modules' => [
-        // ... Previously registered modules here
-        'WShafer\\PSR11FlySystem',
-    ]
-];
-```
-
 
 ## Symfony
 While there are other Symfony bundles out there, as of Symfony 3.3 the service container is now 
@@ -312,10 +257,6 @@ parameters:
                 type: local
                 options:
                     root: /tmp/symfony
-            
-        fileSystems:
-            other:
-                adaptor: someOtherAdaptor
 ```
 
 ### Container Service Config
@@ -330,10 +271,10 @@ services:
         public: true
     
     # FlySystem using a different filesystem configuration
-    other:
+    someOtherAdaptor:
         factory: ['WShafer\PSR11FlySystem\FlySystemFactory', __callStatic]
         class: 'League\Flysystem\FilesystemInterface'
-        arguments: ['other', ['@service_container']]
+        arguments: ['someOtherAdaptor', ['@service_container']]
         public: true
     
     WShafer\PSR11FlySystem\FlySystemFactory:
@@ -364,7 +305,7 @@ class DefaultController extends Controller
         $fileSystem = $this->container->get('fileSystem');
         $fileSystem->write('default.txt', 'Hi there');
         
-        $fileSystem = $this->container->get('other');
+        $fileSystem = $this->container->get('someOtherAdaptor');
         $fileSystem->write('other.txt', 'Hi there');
     }
 }
@@ -401,12 +342,6 @@ $config = [
                     ],
                 ],
             ],
-
-            'fileSystems' => [
-                'other' => [
-                    'adaptor' => 'someOtherAdaptor'
-                ],
-            ],
         ],
     ],
 ];
@@ -420,8 +355,8 @@ $container = $app->getContainer();
 $container['fileSystem'] = new \WShafer\PSR11FlySystem\FlySystemFactory();
 
 // FlySystem using a different filesystem configuration
-$container['other'] = function ($c) {
-    return \WShafer\PSR11FlySystem\FlySystemFactory::other($c);
+$container['someOtherAdaptor'] = function ($c) {
+    return \WShafer\PSR11FlySystem\FlySystemFactory::someOtherAdaptor($c);
 };
 
 
@@ -430,36 +365,17 @@ $app->get('/example', function (Request $request, Response $response) {
     
     /** @var \League\Flysystem\FilesystemInterface $fileSystem */
     $fileSystem = $this->get('fileSystem');
-    $fileSystem->put('default.txt', 'Hi there');
+    $fileSystem->write('default.txt', 'Hi there');
 
     /** @var \League\Flysystem\FilesystemInterface $fileSystem */
-    $fileSystem = $this->get('other');
-    $fileSystem->put('other.txt', 'Hi there');
+    $fileSystem = $this->get('someOtherAdaptor');
+    $fileSystem->write('other.txt', 'Hi there');
 });
 
 $app->run();
 ```
 
 # Configuration
-
-Fly System uses three types of services that will each need to be configured for your application.
-In addition you will need to create a named service that maps to the `\WShafer\PSR11FlySystem\FlySystemFactory`
-based on the container you are using.
-
-- Named Services : These are services names wired up to a factory.  The configuration will differ
-based on the type of container / framework in use.
-
-- [Adaptors](#adaptors) : These are the adaptors to to the actual file system.  This could be
-an Azure container, S3, Local, Memory, etc.
-
-- [Caches](#caches) : (Optional) Cache layer to optimize performance.  While this is optional, this package
-will use a memory cache by default if none is provide.
-
-- [File System](#file-system) :  This will configure the final FlySystem File System that
-you will actually use to do the work.   This uses the previous two configurations to get
-you a fully functioning File System to work with.   In addition you can also configure
-a [Mount Manager](https://flysystem.thephpleague.com/mount-manager/) to wire up multiple
-file systems that need to interact with one another.
 
 ## Minimal Configuration
 A minimal configuration would consist of at least defining one service and the "default" adaptor.
@@ -495,7 +411,7 @@ Using this setup you will be using the "default" file system with the "default" 
 example we will be using the local file adaptor as the default.
 
 ## Full Configuration
-Note: An "default" adaptor is required.
+Note: A "default" adaptor is required.
 
 ### Full Example
 ```php
@@ -518,60 +434,14 @@ return [
                 'type' => 'null', // Adaptor name or pre-configured service from the container
                 'options' => [],  // Adaptor specific options.  See adaptors below
             ],
-        ],
-        
-        'caches' => [
-            // Array Keys are the names used for the cache
-            //
-            // Note: You can specify "default" here to overwrite the default settings for the
-            // default cache.  Memory is used if not specified
-            'default' => [
-                'type' => 'psr6',
-                // Cache specific options.  See caches below
-                'options' => [
-                    'service' => 'my_psr6_service_from_container',
-                    'key' => 'my_key_',
-                    'ttl' => 3000
-                ], 
-            ],
-            
-            'cacheTwo' => [
-                'type' => 'psr6',
-                // Cache specific options.  See caches below
-                'options' => [
-                    'service' => 'my_psr6_service_from_container',
-                    'key' => 'my_key_',
-                    'ttl' => 3000
-                ], 
-            ],
-            
-        ],
-        
-        'fileSystems' => [
-            // Array Keys are the file systems identifiers.
-            //
-            // Note: You can specify "default" here to overwrite the default settings for the
-            // default file system
-            'default' => [
-                'adaptor' => 'default', // Adaptor name from adaptor configuration
-                'cache' => 'default',   // Cache name from adaptor configuration
-                'plugins' => []         // User defined plugins to be injected into the file system
-            ],
             
             // Mount Manager Config
             'manager' => [
-                'adaptor' => 'manager',
-                'fileSystems' => [
-                    'local' => [
-                        'adaptor' => 'default', // Adaptor name from adaptor configuration
-                        'cache' => 'default',   // PSR-6 pre-configured service
-                        'plugins' => []         // User defined plugins to be injected into the file system
-                    ],
-                    
-                    'anotherFileSystem' => [
-                        'adaptor' => 'adaptorTwo', // Adaptor name from adaptor configuration
-                        'cache' => 'cacheTwo',     // PSR-6 pre-configured service
-                        'plugins' => []            // User defined plugins to be injected into the file system
+                'type' => 'manager', // Adaptor name or pre-configured service from the container
+                'options' => [
+                    'fileSystems' => [
+                        'default' => 'default', // Adaptor name from adaptor configuration
+                        'adaptorTwo' => 'adaptorTwo', // Adaptor name from adaptor configuration
                     ],
                 ],
             ],
@@ -581,44 +451,8 @@ return [
 
 ```
 
-### File System
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'fileSystems' => [
-            // Array Keys are the file systems identifiers
-            'myFileSystemName' => [
-                'adaptor' => 'default', // Required : Adaptor name from adaptor configuration
-                'cache' => 'default',   // Optional : Cache name from adaptor configuration
-                'plugins' => []         // Optional : User defined plugins to be injected into the file system
-            ],
-        ],
-    ],
-];
-```
-
 ### Adaptors
 Example configs for supported adaptors
-
-#### Null/Test
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'adaptors' => [
-            'myAdaptorName' => [
-                'type' => 'null',
-                'options' => [], #No options available
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Null Adaptor](https://flysystem.thephpleague.com/adapter/null-test/)
 
 #### Local
 
@@ -633,7 +467,7 @@ return [
                 'options' => [
                     'root' => '/path/to/root', // Required : Path on local filesystem
                     'writeFlags' => LOCK_EX,   // Optional : PHP flags.  See: file_get_contents for more info
-                    'linkBehavior' => League\Flysystem\Adapter\Local::DISALLOW_LINKS, // Optional : Link behavior
+                    'linkBehavior' => \League\Flysystem\Local\LocalFilesystemAdapter::DISALLOW_LINKS, // Optional : Link behavior
                     
                     // Optional:  Optional set of permissions to set for files
                     'permissions' => [
@@ -653,7 +487,7 @@ return [
 ];
 ```
 
-FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/adapter/local/)
+FlySystem Docs: [Local Adaptor](https://flysystem.thephpleague.com/v2/docs/adapter/local/)
 
 #### FTP
 
@@ -769,34 +603,6 @@ return [
 
 FlySystem Docs: [Zip Archive](https://flysystem.thephpleague.com/adapter/zip-archive/)
 
-#### Azure
-
-**Install**
-```bash
-composer require league/flysystem-azure
-```
-
-**Config**
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'adaptors' => [
-            'default' => [
-                'type' => 'azure',
-                'options' => [
-                    'accountName' => 'account-name',  // Required : Account Name
-                    'apiKey' => 'api-key',            // Required : API Key
-                    'container' => 'container-name',  // Required : Container name
-                    'prefix' => 'prefix_',            // Optional
-                ],
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Azure Adaptor](https://flysystem.thephpleague.com/adapter/azure/)
 
 #### AWS S3
 _Note: AWS V2 is not supported in this package_
@@ -816,25 +622,29 @@ return [
             'default' => [
                 'type' => 's3',
                 'options' => [
-                    'key' => 'aws-key',         // Required : Key
-                    'secret'  => 'aws-secret',  // Required : Secret
-                    'region'  => 'us-east-1',   // Required : Region
+                    'client' => 'some-container-service', // Required if client options not provided : S3 client service name
+                    'key' => 'aws-key',         // Required if no client provided : Key
+                    'secret'  => 'aws-secret',  // Required if no client provided : Secret
+                    'region'  => 'us-east-1',   // Required if no client provided : Region
                     'bucket'  => 'bucket-name', // Required : Bucket Name
                     'prefix'  => 'some/prefix', // Optional : Prefix
-                    'version' => 'latest'       // Optional : Api Version.  Default: 'latest'
+                    'version' => 'latest',      // Optional : Api Version.  Default: 'latest'
+                    'dir_permissions' => \League\Flysystem\Visibility::PUBLIC // or ::PRIVATE (Optional)
                 ],
             ],
         ],
     ],
 ];
 ```
-FlySystem Docs: [Aws S3 Adapter - SDK V3](https://flysystem.thephpleague.com/adapter/aws-s3-v3/)
+FlySystem Docs: [Aws S3 Adapter - SDK V3](https://flysystem.thephpleague.com/v2/docs/adapter/aws-s3-v3/)
 
-#### DropBox
+
+#### Async Aws S3 Adapter
 
 **Install**
 ```bash
-composer require spatie/flysystem-dropbox
+composer require async-aws/simple-s3
+composer require league/flysystem-async-aws-s3
 ```
 
 **Config**
@@ -845,152 +655,48 @@ return [
     'flysystem' => [
         'adaptors' => [
             'default' => [
-                'type' => 'dropbox',
+                'type' => 'AsyncAwsS3',
                 'options' => [
-                    'token'   => 'my-token', // Required : API Token
-                    'prefix'  => 'prefix',   // Optional : Prefix
+                    'client' => 'some-container-service', // Required if client options not provided : S3 client service name
+                    'accessKeyId' => 'aws-key',           // Required if no client provided : Key
+                    'accessKeySecret'  => 'aws-secret',   // Required if no client provided : Secret
+                    'region'  => 'us-east-1',             // Required if no client provided : Region
+                    'bucket'  => 'bucket-name',           // Required : Bucket Name
+                    'prefix'  => 'some/prefix',           // Optional : Prefix
+                    'dir_permissions' => \League\Flysystem\Visibility::PUBLIC // or ::PRIVATE (Optional)
                 ],
             ],
         ],
     ],
 ];
 ```
-FlySystem Docs: [DropBox](https://flysystem.thephpleague.com/adapter/dropbox/)
-
-### Caches
-Example configs for supported caches
-
-#### Memory/Test
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'default' => [
-                'type' => 'memory',
-                'options' => [], // No options available
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
-
-#### Adaptor
-
-This cache adaptor will use another adaptor to store the cache to file to.  It will pull this file system
-from the existing manager.
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'default' => [
-                'type' => 'adaptor',
-                'options' => [
-                    'adaptor' => 'MyAdaptorName',  // Required : Adaptor name found in the adaptor config
-                    'fileName' => 'my_cache_file', // Required : File name for cache file
-                    'ttl' => 300                   // Optional : Time to live
-                ], 
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/)
-
-#### PSR-6
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'default' => [
-                'type' => 'psr6',
-                'options' => [
-                    'service' => 'my_psr6_service_from_container', // Required : Service to be used from the container
-                    'key' => 'my_key_',                            // Required : Cache Key
-                    'ttl' => 3000                                  // Optional : Time to live
-                ],
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: Unknown 
-
-#### Predis
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'default' => [
-                'type' => 'predis',
-                'options' => [
-                    'service' => 'my_predis_client_from_container', // Required : Configured Predis Client Service to pull from container
-                    'key' => 'my_key_',                             // Required : Cache Key
-                    'ttl' => 3000                                   // Optional : Time to live
-                ],
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
-
-#### Memcached
-
-```php
-<?php
-
-return [
-    'flysystem' => [
-        'caches' => [
-            'default' => [
-                'type' => 'memcached',
-                'options' => [
-                    'service' => 'my_memcached_client_from_container', // Required : Configured Memcached Client Service to pull from container
-                    'key' => 'my_key_',                                // Required : Cache Key
-                    'ttl' => 3000                                      // Optional : Time to live
-                ],
-            ],
-        ],
-    ],
-];
-```
-FlySystem Docs: [Caching](https://flysystem.thephpleague.com/caching/) 
-
-
-#### Stash
-See: [PSR6](#psr-6)
-
-_Note: While "The League" provides a native cache client, Stash itself already
-implements a PSR 6 interface.  It is recommended to use that instead._
-
+FlySystem Docs: [AsyncAws S3 Adapter](https://flysystem.thephpleague.com/v2/docs/adapter/async-aws-s3/)
 
 ### Upgrades
 
-#### Version 1 to Version 2
-When upgrading from version 1 to version 2, there shouldn't be any changes needed.   Please note
-that using the FlySystemManager directly is no longer recommended.  Named services
-should be used instead.  See above for more info.
+#### Version 2 to Version 3
+Version 3 upgrades FlySystem to version 2.  FlySystem version 2 is a brand-new take
+on the great FlySystem.  The library has been slim down and simplified.  This has
+caused us to also take a new approach which introduces a number of breaking changes.
 
-##### Changes
-* A "default" filesystem entry is added automatically to the config.  This default
-file system requires you to either specify a configured adaptor for the filesystem
-OR there must be a default adaptor configured in order to use it.  Most Version 1
-users should not have an issue with this change and the factories should still function
-normally.
+##### Backwards compatibility breaks
+* The File Manager has been removed.  This is a relic of version 1 and was deprecated
+  in version 2.  You will need to update your code if you are still using this in your
+  code base.
 
-* The default cache can now be overwritten and reconfigured.   Previously a
-"memory" cache was always used when the file system didn't state the cache to use.
+* File Caching has been removed upstream and as a result has been removed from
+  this library as well.
+  
+* FlySystem plugins have been removed upstream and are no longer supported.
+  
+* With the removal of caching and plugins the configuration for file systems
+  has been simplified.  The "fileSystems" key has been removed and now only the 
+  "adaptors" key remains.
+  
+* The "Mount Manager" can now be configured like any other adaptor.
+  
+* Adaptors removed upstream:
+    * Null
+    * Azure
+    * Dropbox
  

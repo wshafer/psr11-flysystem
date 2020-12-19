@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace WShafer\PSR11FlySystem\Test\Config;
 
 use PHPUnit\Framework\TestCase;
-use WShafer\PSR11FlySystem\Config\AdaptorConfig;
+use WShafer\PSR11FlySystem\Config\Config;
 use WShafer\PSR11FlySystem\Exception\MissingConfigException;
 
 class AdaptorConfigTest extends TestCase
 {
-    /** @var AdaptorConfig */
+    /** @var Config */
     protected $config;
 
     protected $settings;
@@ -23,8 +23,8 @@ class AdaptorConfigTest extends TestCase
             ],
         ];
 
-        $this->config = new AdaptorConfig($this->settings);
-        $this->assertInstanceOf(AdaptorConfig::class, $this->config);
+        $this->config = new Config($this->settings);
+        $this->assertInstanceOf(Config::class, $this->config);
     }
 
     public function testConstructor()
@@ -44,13 +44,13 @@ class AdaptorConfigTest extends TestCase
     public function testFailWithNoConfig()
     {
         $this->expectException(MissingConfigException::class);
-        new AdaptorConfig([]);
+        new Config([]);
     }
 
     public function testFailWithNoType()
     {
         $this->expectException(MissingConfigException::class);
         unset($this->settings['type']);
-        new AdaptorConfig($this->settings);
+        new Config($this->settings);
     }
 }

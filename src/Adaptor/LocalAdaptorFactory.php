@@ -3,18 +3,18 @@ declare(strict_types=1);
 
 namespace WShafer\PSR11FlySystem\Adaptor;
 
-use League\Flysystem\Adapter\Local;
-use WShafer\PSR11FlySystem\FactoryInterface;
+use League\Flysystem\Local\LocalFilesystemAdapter;
+use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 
 class LocalAdaptorFactory implements FactoryInterface
 {
-    public function __invoke(array $options)
+    public function __invoke(array $options): LocalFilesystemAdapter
     {
         $root = $options['root'] ?? null;
         $writeFlags = $options['writeFlags'] ?? LOCK_EX;
-        $linkHandling = $options['linkBehavior'] ?? Local::DISALLOW_LINKS;
-        $permissions = $options['permissions'] ?? [];
+        $linkHandling = $options['linkBehavior'] ?? LocalFilesystemAdapter::DISALLOW_LINKS;
+        $permissions = PortableVisibilityConverter::fromArray($options['permissions'] ?? []);
 
-        return new Local($root, $writeFlags, $linkHandling, $permissions);
+        return new LocalFilesystemAdapter($root, $permissions, $writeFlags, $linkHandling);
     }
 }
