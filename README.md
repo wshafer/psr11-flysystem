@@ -3,7 +3,13 @@
 [![Build Status](https://travis-ci.org/wshafer/psr11-flysystem.svg?branch=master)](https://travis-ci.org/wshafer/psr11-flysystem)
 # PSR-11 FlySystem
 
-[FlySystem](https://flysystem.thephpleague.com/) Factories for PSR-11
+[FlySystem](https://flysystem.thephpleague.com/) Version 1 Factories for PSR-11
+
+## Deprecated
+
+This library has been depricated and moved.  Please see the new module [blazon/psr11-flysystem](https://gitlab.com/blazon/psr11-flysystem)
+for the latest release.
+
 
 #### Table of Contents
 - [Installation](#installation)

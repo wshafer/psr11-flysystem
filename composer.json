@@ -47,5 +47,7 @@
             "config-provider": "WShafer\\PSR11FlySystem\\ConfigProvider",
             "module": "WShafer\\PSR11FlySystem"
         }
-    }
+    },
+
+    "abandoned": "blazon/psr11-flysystem"
 }
