@@ -1,9 +1,12 @@
 <?php
+
+
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Config;
+namespace Blazon\PSR11FlySystem\Config;
 
-use WShafer\PSR11FlySystem\Exception\InvalidConfigException;
+use Blazon\PSR11FlySystem\Exception\InvalidConfigException;
+use Blazon\PSR11FlySystem\Exception\MissingConfigException;
 
 class Config
 {
@@ -17,8 +20,8 @@ class Config
     public function getType(): string
     {
         if (empty($this->config['type'])) {
-            throw new InvalidConfigException(
-                "No type found in config for adaptor"
+            throw new MissingConfigException(
+                "No type found in config for adapter"
             );
         }
 
@@ -27,6 +30,6 @@ class Config
 
     public function getOptions(): array
     {
-        return $this->config['type'] ?? [];
+        return $this->config['options'] ?? [];
     }
 }

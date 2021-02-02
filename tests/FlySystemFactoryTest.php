@@ -1,103 +1,347 @@
 <?php
+
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Test;
+namespace Blazon\PSR11FlySystem\Test;
 
-use League\Flysystem\FilesystemInterface;
+use Blazon\PSR11FlySystem\Adapter\AdapterMapper;
+use Blazon\PSR11FlySystem\Config\Config;
+use Blazon\PSR11FlySystem\Exception\InvalidConfigException;
+use Blazon\PSR11FlySystem\Exception\InvalidContainerException;
+use Blazon\PSR11FlySystem\Exception\MissingConfigException;
+use Blazon\PSR11FlySystem\FlySystemFactory;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use WShafer\PSR11FlySystem\FlySystemFactory;
-use WShafer\PSR11FlySystem\FlySystemManager;
+use Symfony\Component\DependencyInjection\Container as SymfonyContainer;
 
+/** @covers \Blazon\PSR11FlySystem\FlySystemFactory */
 class FlySystemFactoryTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|FlySystemFactory */
-    protected $factory;
-
-    /** @var \PHPUnit_Framework_MockObject_MockObject|FlySystemManager */
-    protected $mockManager;
-
-    /** @var \PHPUnit_Framework_MockObject_MockObject|FilesystemInterface */
-    protected $mockFileSystem;
-
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ContainerInterface */
-    protected $mockContainer;
-
-    public function setup()
+    public function testGetConfigArraySymfony()
     {
-        $this->mockManager = $this->getMockBuilder(FlySystemManager::class)
+        $expected = [
+            'flysystem' => [
+                'some-key' => 'some-value',
+                'some-other-key' => 'some-other-value',
+            ]
+        ];
+
+        $mockContainer = $this->getMockBuilder(SymfonyContainer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->mockContainer = $this->createMock(ContainerInterface::class);
-        $this->mockFileSystem = $this->createMock(FilesystemInterface::class);
+        $mockContainer->expects($this->once())
+            ->method('hasParameter')
+            ->with($this->equalTo('flysystem'))
+            ->willReturn(true);
 
-        FlySystemFactory::setFlySystemManager($this->mockManager);
-        $this->assertEquals(FlySystemFactory::getFlySystemManager($this->mockContainer), $this->mockManager);
+        $mockContainer->expects($this->once())
+            ->method('getParameter')
+            ->with($this->equalTo('flysystem'))
+            ->willReturn($expected['flysystem']);
 
-        $this->factory = new FlySystemFactory();
-
-        $this->assertInstanceOf(FlySystemFactory::class, $this->factory);
-    }
-
-    public function testConstructor()
-    {
-    }
-
-    public function testSetAndGetFileSystemName()
-    {
-        $expected = 'some-name';
-
-        $this->factory->setFileSystemName($expected);
-
-        $result = $this->factory->getFileSystemName();
+        $factory = new FlySystemFactory();
+        $result = $factory->getConfigArray($mockContainer);
 
         $this->assertEquals($expected, $result);
     }
 
-    public function testInvokeWithDefault()
+    public function testGetConfigArrayZend()
     {
-        $this->mockManager->expects($this->once())
+        $expected = [
+            'flysystem' => [
+                'some-key' => 'some-value',
+                'some-other-key' => 'some-other-value',
+            ]
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $hasMap = [
+            ['config', true],
+            ['settings', false],
+        ];
+
+        $mockContainer->expects($this->atLeastOnce())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $mockContainer->expects($this->once())
             ->method('get')
-            ->with('default')
-            ->willReturn($this->mockFileSystem);
+            ->with($this->equalTo('config'))
+            ->willReturn($expected);
 
-        $return = $this->factory->__invoke($this->mockContainer);
+        $factory = new FlySystemFactory();
+        $result = $factory->getConfigArray($mockContainer);
 
-        $this->assertEquals($this->mockFileSystem, $return);
+        $this->assertEquals($expected, $result);
     }
 
-    public function testInvokeWithOtherName()
+    public function testGetConfigArraySlim()
     {
-        $this->mockManager->expects($this->once())
+        $expected = [
+            'flysystem' => [
+                'some-key' => 'some-value',
+                'some-other-key' => 'some-other-value',
+            ]
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $hasMap = [
+            ['config', false],
+            ['settings', true],
+        ];
+
+        $mockContainer->expects($this->atLeastOnce())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $mockContainer->expects($this->once())
             ->method('get')
-            ->with('other')
-            ->willReturn($this->mockFileSystem);
+            ->with($this->equalTo('settings'))
+            ->willReturn($expected);
 
-        $this->factory->setFileSystemName('other');
+        $factory = new FlySystemFactory();
+        $result = $factory->getConfigArray($mockContainer);
 
-        $return = $this->factory->__invoke($this->mockContainer);
+        $this->assertEquals($expected, $result);
+    }
 
-        $this->assertEquals($this->mockFileSystem, $return);
+    public function testGetConfigArrayMissing()
+    {
+        $this->expectException(MissingConfigException::class);
+        $expected = [
+            'flysystem' => [
+                'some-key' => 'some-value',
+                'some-other-key' => 'some-other-value',
+            ]
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $hasMap = [
+            ['config', false],
+            ['settings', false],
+        ];
+
+        $mockContainer->expects($this->atLeastOnce())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $mockContainer->expects($this->never())
+            ->method('get');
+
+        $factory = new FlySystemFactory();
+        $factory->getConfigArray($mockContainer);
+    }
+
+    public function testGetConfig()
+    {
+        $expected = [
+            'flysystem' => [
+                'default' => [
+                    'type' => 'memory',
+                    'options' => []
+                ],
+            ],
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $hasMap = [
+            ['config', true],
+            ['settings', false],
+        ];
+
+        $mockContainer->expects($this->atLeastOnce())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $mockContainer->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('config'))
+            ->willReturn($expected);
+
+        $factory = new FlySystemFactory();
+        $result = $factory->getConfig($mockContainer);
+
+        $this->assertInstanceOf(Config::class, $result);
+    }
+
+    public function testGetConfigWithServiceName()
+    {
+        $serviceKey = 'my-service-name';
+        $expected = [
+            'flysystem' => [
+                $serviceKey => [
+                    'type' => 'memory',
+                    'options' => []
+                ],
+            ],
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $hasMap = [
+            ['config', true],
+            ['settings', false],
+        ];
+
+        $mockContainer->expects($this->atLeastOnce())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $mockContainer->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('config'))
+            ->willReturn($expected);
+
+        $factory = new FlySystemFactory($serviceKey);
+        $result = $factory->getConfig($mockContainer);
+
+        $this->assertInstanceOf(Config::class, $result);
+    }
+
+    public function testGetConfigWithServiceNameMissingConfig()
+    {
+        $this->expectException(InvalidConfigException::class);
+        $serviceKey = 'my-service-name';
+        $expected = [
+            'flysystem' => [
+                'default' => [
+                    'type' => 'memory',
+                    'options' => []
+                ],
+            ],
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $hasMap = [
+            ['config', true],
+            ['settings', false],
+        ];
+
+        $mockContainer->expects($this->atLeastOnce())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $mockContainer->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('config'))
+            ->willReturn($expected);
+
+        $factory = new FlySystemFactory($serviceKey);
+        $factory->getConfig($mockContainer);
+    }
+
+    public function testGetMapper()
+    {
+        $mockContainer = $this->createMock(ContainerInterface::class);
+        $factory = new FlySystemFactory();
+        $result = $factory->getMapper($mockContainer);
+        $this->assertInstanceOf(AdapterMapper::class, $result);
+    }
+
+    public function testInvoke()
+    {
+        $type = 'memory';
+        $options = ['some-key' => 'some-value'];
+
+        $factory = $this->getMockBuilder(FlySystemFactory::class)
+            ->onlyMethods(['getConfig', 'getMapper'])
+            ->getMock();
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $mockConfig = $this->getMockBuilder(Config::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockMapper = $this->getMockBuilder(AdapterMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockAdapter = $this->getMockBuilder(FilesystemAdapter::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $factory->expects($this->once())
+            ->method('getConfig')
+            ->willReturn($mockConfig);
+
+        $factory->expects($this->once())
+            ->method('getMapper')
+            ->willReturn($mockMapper);
+
+        $mockConfig->expects($this->once())
+            ->method('getType')
+            ->willReturn($type);
+
+        $mockConfig->expects($this->once())
+            ->method('getOptions')
+            ->willReturn($options);
+
+        $mockMapper->expects($this->once())
+            ->method('get')
+            ->with(
+                $this->equalTo($type),
+                $this->equalTo($options)
+            )->willReturn($mockAdapter);
+
+        $result = $factory($mockContainer);
+
+        $this->assertInstanceOf(Filesystem::class, $result);
     }
 
     public function testCallStatic()
     {
-        $this->mockManager->expects($this->once())
+        $service = 'someFilesystem';
+        $type = 'some-service';
+
+        $config = [
+            'flysystem' => [
+                $service => [
+                    'type' => $type,
+                    'options' => []
+                ],
+            ],
+        ];
+
+        $mockContainer = $this->createMock(ContainerInterface::class);
+
+        $mockAdapter = $this->getMockBuilder(FilesystemAdapter::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $hasMap = [
+            ['config', true],
+            [$type, true]
+        ];
+
+        $mockContainer->expects($this->any())
+            ->method('has')
+            ->willReturnMap($hasMap);
+
+        $getMap = [
+            ['config', $config],
+            [$type, $mockAdapter]
+        ];
+
+        $mockContainer->expects($this->any())
             ->method('get')
-            ->with('other')
-            ->willReturn($this->mockFileSystem);
+            ->willReturnMap($getMap);
 
-        $return = $this->factory::other($this->mockContainer);
-
-        $this->assertEquals($this->mockFileSystem, $return);
+        $result = FlySystemFactory::someFilesystem($mockContainer);
+        $this->assertInstanceOf(Filesystem::class, $result);
     }
 
-    /**
-     * @expectedException \WShafer\PSR11FlySystem\Exception\InvalidContainerException
-     */
-    public function testCallStaticNoContainer()
+    public function testCallStaticMissingContainer()
     {
-        $this->factory::other('not a container');
+        $this->expectException(InvalidContainerException::class);
+        FlySystemFactory::someFilesystem();
     }
 }

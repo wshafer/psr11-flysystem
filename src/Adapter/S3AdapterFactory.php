@@ -1,26 +1,26 @@
 <?php
+
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Adaptor;
+namespace Blazon\PSR11FlySystem\Adapter;
 
 use Aws\S3\S3Client;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
 use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Visibility;
-use Psr\Container\ContainerInterface;
 
 class S3AdapterFactory implements FactoryInterface, ContainerAwareInterface
 {
-    /** @var ContainerInterface */
-    protected $container;
+    use ContainerTrait;
 
-    public function __invoke(array $options): AwsS3V3Adapter
+    public function __invoke(array $options): FilesystemAdapter
     {
-        $bucket = $options['bucket'] ?? null;
-        $prefix = $options['prefix'] ?? null;
+        $bucket = $options['bucket'] ?? '';
+        $prefix = $options['prefix'] ?? '';
 
         $permissions = new PortableVisibilityConverter(
-            $options['dir_permissions'] ?? Visibility::PUBLIC
+            $options['dirPermissions'] ?? Visibility::PUBLIC
         );
 
         $client = $this->getClient($options);
@@ -28,7 +28,7 @@ class S3AdapterFactory implements FactoryInterface, ContainerAwareInterface
         return new AwsS3V3Adapter($client, $bucket, $prefix, $permissions);
     }
 
-    protected function getClient(array $options): S3Client
+    public function getClient(array $options): S3Client
     {
         $container = $this->getContainer();
 
@@ -49,15 +49,5 @@ class S3AdapterFactory implements FactoryInterface, ContainerAwareInterface
                 'secret' => $secret
             ]
         ]);
-    }
-
-    public function getContainer(): ContainerInterface
-    {
-        return $this->container;
-    }
-
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
     }
 }

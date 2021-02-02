@@ -1,26 +1,26 @@
 <?php
+
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Adaptor;
+namespace Blazon\PSR11FlySystem\Adapter;
 
 use AsyncAws\S3\S3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Visibility;
-use Psr\Container\ContainerInterface;
 
 class AsyncAwsS3AdapterFactory implements FactoryInterface, ContainerAwareInterface
 {
-    /** @var ContainerInterface */
-    protected $container;
+    use ContainerTrait;
 
-    public function __invoke(array $options): AsyncAwsS3Adapter
+    public function __invoke(array $options): FilesystemAdapter
     {
-        $bucket = $options['bucket'] ?? null;
-        $prefix = $options['prefix'] ?? null;
+        $bucket = $options['bucket'] ?? '';
+        $prefix = $options['prefix'] ?? '';
 
         $permissions = new PortableVisibilityConverter(
-            $options['dir_permissions'] ?? Visibility::PUBLIC
+            $options['dirPermissions'] ?? Visibility::PUBLIC
         );
 
         $client = $this->getClient($options);
@@ -28,7 +28,7 @@ class AsyncAwsS3AdapterFactory implements FactoryInterface, ContainerAwareInterf
         return new AsyncAwsS3Adapter($client, $bucket, $prefix, $permissions);
     }
 
-    protected function getClient(array $options): S3Client
+    public function getClient(array $options): S3Client
     {
         $container = $this->getContainer();
 
@@ -36,8 +36,8 @@ class AsyncAwsS3AdapterFactory implements FactoryInterface, ContainerAwareInterf
             return $container->get($options['client']);
         }
 
-        $key = $options['accessKeyId'] ?? null;
-        $secret = $options['accessKeySecret'] ?? null;
+        $key = $options['key'] ?? null;
+        $secret = $options['secret'] ?? null;
         $region = $options['region'] ?? 'us-east-1';
 
         return new S3Client([
@@ -45,15 +45,5 @@ class AsyncAwsS3AdapterFactory implements FactoryInterface, ContainerAwareInterf
             'accessKeyId' => $key,
             'accessKeySecret' => $secret
         ]);
-    }
-
-    public function getContainer(): ContainerInterface
-    {
-        return $this->container;
-    }
-
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
     }
 }

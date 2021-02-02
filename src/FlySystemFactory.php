@@ -1,19 +1,36 @@
 <?php
+
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem;
+namespace Blazon\PSR11FlySystem;
 
+use Blazon\PSR11FlySystem\Exception\MissingConfigException;
 use League\Flysystem\Filesystem;
 use Psr\Container\ContainerInterface;
-use WShafer\PSR11FlySystem\Adaptor\AdaptorMapper;
-use WShafer\PSR11FlySystem\Adaptor\MapperInterface;
-use WShafer\PSR11FlySystem\Config\Config;
-use WShafer\PSR11FlySystem\Exception\InvalidConfigException;
-use WShafer\PSR11FlySystem\Exception\InvalidContainerException;
+use Blazon\PSR11FlySystem\Adapter\AdapterMapper;
+use Blazon\PSR11FlySystem\Adapter\MapperInterface;
+use Blazon\PSR11FlySystem\Config\Config;
+use Blazon\PSR11FlySystem\Exception\InvalidConfigException;
+use Blazon\PSR11FlySystem\Exception\InvalidContainerException;
 
 class FlySystemFactory
 {
     protected $configKey = 'default';
+
+    public static function __callStatic($name, $arguments): Filesystem
+    {
+        if (
+            empty($arguments[0])
+            || !$arguments[0] instanceof ContainerInterface
+        ) {
+            throw new InvalidContainerException(
+                'Argument 0 must be an instance of a PSR-11 container'
+            );
+        }
+
+        $factory = new self($name);
+        return $factory($arguments[0]);
+    }
 
     public function __construct(string $configKey = 'default')
     {
@@ -24,34 +41,34 @@ class FlySystemFactory
     {
         $config = $this->getConfig($container);
         $mapper = $this->getMapper($container);
+        $adapter = $mapper->get($config->getType(), $config->getOptions());
 
-        $adaptor = $mapper->get($config->getType(), $config->getOptions());
-
-        return new Filesystem($adaptor);
+        return new Filesystem($adapter);
     }
 
     public function getMapper(ContainerInterface $container): MapperInterface
     {
-        return new AdaptorMapper($container);
+        return new AdapterMapper($container);
     }
 
     public function getConfig(ContainerInterface $container): Config
     {
         $config = $this->getConfigArray($container);
 
-        if (empty($config[$this->configKey])) {
+        if (empty($config['flysystem'][$this->configKey])) {
             throw new InvalidConfigException(
-                "No config found for adaptor: " . $this->configKey
+                "No config found for adapter: " . $this->configKey
             );
         }
 
-        return new Config($config[$this->configKey]);
+        return new Config($config['flysystem'][$this->configKey]);
     }
 
-    protected function getConfigArray(ContainerInterface $container): array
+    public function getConfigArray(ContainerInterface $container): array
     {
         // Symfony config is parameters. //
-        if (method_exists($container, 'getParameter')
+        if (
+            method_exists($container, 'getParameter')
             && method_exists($container, 'hasParameter')
             && $container->hasParameter('flysystem')
         ) {
@@ -68,20 +85,6 @@ class FlySystemFactory
             return ['flysystem' => $container->get('settings')['flysystem']];
         }
 
-        return [];
-    }
-
-    public static function __callStatic($name, $arguments): Filesystem
-    {
-        if (empty($arguments[0])
-            || !$arguments[0] instanceof ContainerInterface
-        ) {
-            throw new InvalidContainerException(
-                'Argument 0 must be an instance of a PSR-11 container'
-            );
-        }
-
-        $factory = new static($name);
-        return $factory($arguments[0]);
+        throw new MissingConfigException("Unable to locate FlySystem configuration");
     }
 }

@@ -1,20 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Test\Config;
+namespace Blazon\PSR11FlySystem\Test\Config;
 
+use Blazon\PSR11FlySystem\Exception\MissingConfigException;
 use PHPUnit\Framework\TestCase;
-use WShafer\PSR11FlySystem\Config\Config;
-use WShafer\PSR11FlySystem\Exception\MissingConfigException;
+use Blazon\PSR11FlySystem\Config\Config;
 
-class AdaptorConfigTest extends TestCase
+/** @covers \Blazon\PSR11FlySystem\Config\Config */
+class ConfigTest extends TestCase
 {
     /** @var Config */
     protected $config;
 
     protected $settings;
 
-    public function setup()
+    protected function setup(): void
     {
         $this->settings = [
             'type' => 'local',
@@ -41,16 +42,18 @@ class AdaptorConfigTest extends TestCase
         $this->assertEquals($this->settings['options'], $this->config->getOptions());
     }
 
-    public function testFailWithNoConfig()
+    public function testGetOptionsWithNoOptions()
     {
-        $this->expectException(MissingConfigException::class);
-        new Config([]);
+        unset($this->settings['options']);
+        $config = new Config($this->settings);
+        $this->assertEquals([], $config->getOptions());
     }
 
-    public function testFailWithNoType()
+    public function testGetTypeWithNoType()
     {
         $this->expectException(MissingConfigException::class);
         unset($this->settings['type']);
-        new Config($this->settings);
+        $config = new Config($this->settings);
+        $config->getType();
     }
 }

@@ -10,7 +10,7 @@
 - [Usage](#usage)
 - [Containers](#containers)
     - [Pimple](#pimple-example)
-    - [Zend Service Manager](#zend-service-manager)
+    - [Laminas Service Manager](#laminas-service-manager)
 - [Frameworks](#frameworks)
     - [Mezzio](#mezzio)
     - [Laminas](#laminas)
@@ -29,6 +29,7 @@
         - [Zip Archive](#zip-archive)
         - [AWS S3](#aws-s3)
         - [AsyncAws S3 Adapter](#async-aws-s3-adapter)
+        - [Google Cloud Storage](#google-cloud-storage)
 - [Upgrades](#upgrades)    
     - [Version 2 to version 3](#version-2-to-version-3)
 
@@ -503,13 +504,19 @@ return [
                     'host' => 'ftp.example.com', // Required : Host
                     'username' => 'username',    // Required : Username
                     'password' => 'password',    // Required : Password
+                    'root' => '/root/path/', // required
                 
                     // optional config settings
                     'port' => 21,
-                    'root' => '/path/to/root',
+                    'ssl' => false,
+                    'timeout' => 90,
+                    'utf8' => false,
                     'passive' => true,
-                    'ssl' => true,
-                    'timeout' => 30,
+                    'transferMode' => FTP_BINARY,
+                    'systemType' => null, // 'windows' or 'unix'
+                    'ignorePassiveAddress' => null, // true or false
+                    'timestampsOnUnixListingsEnabled' => false, // true or false
+                    'recurseManually' => true, // true
                 ],
             ],
         ],
@@ -517,7 +524,7 @@ return [
 ];
 ```
 
-FlySystem Docs: [FTP](https://flysystem.thephpleague.com/adapter/ftp/)
+FlySystem Docs: [FTP](https://flysystem.thephpleague.com/v2/docs/adapter/ftp/)
 
 #### SFTP
 **Install**
@@ -537,11 +544,27 @@ return [
                 'options' => [
                     'host' => 'example.com',                              // Required : Host
                     'port' => 21,                                         // Optional : Port
-                    'username' => 'username',                             // Optional : Username
+                    'username' => 'username',                             // Required : Username
                     'password' => 'password',                             // Optional : Password
-                    'privateKey' => 'path/to/or/contents/of/privatekey',  // Optional : Host
+                    'privateKey' => 'path/to/or/contents/of/privatekey',  // Optional : Private SSH Key
+                    'passphrase' => 'passphrase',                         // Optional : SSH Key Passphrase
                     'root' => '/path/to/root',                            // Required : Root Path
                     'timeout' => 10,                                      // Optional : Timeout
+                    'useAgent' => false,                                  // Optional : Use Agent (default: false)
+                    'hostFingerprint' => 'fingerprint',                   // Optional : Host Fingerprint
+                    'maxTries' => 4,                                      // Optional : Max tries
+                    
+                    // Optional:  Optional set of permissions to set for files
+                    'permissions' => [
+                        'file' => [
+                            'public' => 0644,
+                            'private' => 0600,
+                        ],
+                        'dir' => [
+                            'public' => 0755,
+                            'private' => 0700,
+                        ],   
+                    ],
                 ],
             ],
         ],
@@ -549,7 +572,7 @@ return [
 ];
 ```
 
-FlySystem Docs: [SFTP](https://flysystem.thephpleague.com/adapter/sftp/)
+FlySystem Docs: [SFTP](https://flysystem.thephpleague.com/v2/docs/adapter/sftp/)
 
 #### Memory
 
@@ -622,14 +645,14 @@ return [
             'default' => [
                 'type' => 's3',
                 'options' => [
-                    'client' => 'some-container-service', // Required if client options not provided : S3 client service name
-                    'key' => 'aws-key',         // Required if no client provided : Key
+                    'client'  => 'some-container-service', // Required if client options not provided : S3 client service name
+                    'key'     => 'aws-key',         // Required if no client provided : Key
                     'secret'  => 'aws-secret',  // Required if no client provided : Secret
                     'region'  => 'us-east-1',   // Required if no client provided : Region
                     'bucket'  => 'bucket-name', // Required : Bucket Name
                     'prefix'  => 'some/prefix', // Optional : Prefix
                     'version' => 'latest',      // Optional : Api Version.  Default: 'latest'
-                    'dir_permissions' => \League\Flysystem\Visibility::PUBLIC // or ::PRIVATE (Optional)
+                    'dirPermissions' => \League\Flysystem\Visibility::PUBLIC, // or ::PRIVATE (Optional)
                 ],
             ],
         ],
@@ -657,13 +680,13 @@ return [
             'default' => [
                 'type' => 'AsyncAwsS3',
                 'options' => [
-                    'client' => 'some-container-service', // Required if client options not provided : S3 client service name
-                    'accessKeyId' => 'aws-key',           // Required if no client provided : Key
-                    'accessKeySecret'  => 'aws-secret',   // Required if no client provided : Secret
+                    'client'  => 'some-container-service', // Required if client options not provided : S3 client service name
+                    'key'     => 'aws-key',           // Required if no client provided : Key
+                    'secret'  => 'aws-secret',   // Required if no client provided : Secret
                     'region'  => 'us-east-1',             // Required if no client provided : Region
                     'bucket'  => 'bucket-name',           // Required : Bucket Name
                     'prefix'  => 'some/prefix',           // Optional : Prefix
-                    'dir_permissions' => \League\Flysystem\Visibility::PUBLIC // or ::PRIVATE (Optional)
+                    'dirPermissions' => \League\Flysystem\Visibility::PUBLIC, // or ::PRIVATE (Optional)
                 ],
             ],
         ],
@@ -671,6 +694,48 @@ return [
 ];
 ```
 FlySystem Docs: [AsyncAws S3 Adapter](https://flysystem.thephpleague.com/v2/docs/adapter/async-aws-s3/)
+
+#### Google Cloud Storage
+
+**Install**
+```bash
+composer require league/flysystem-google-cloud-storage
+```
+
+**Config**
+```php
+<?php
+
+return [
+    'flysystem' => [
+        'adaptors' => [
+            'default' => [
+                'type' => 'GoogleCloudStorage',
+                'options' => [
+                    'bucket'            => 'bucket name or service', // Required
+                    'client'            => 'service name',           // Required if no clientOptions are provided
+                    // Required if no client is provided
+                    'clientOptions' => [
+                        'keyFile'   => 'path-to-key-file.json',  // Required : Auth key file
+                        'projectId' => 'myProject', // Optional
+                    ],
+                    
+                    'prefix'            => 'some/prefix',           // Optional : Prefix
+                    'defaultVisibility' => \League\Flysystem\Visibility::PUBLIC, // or ::PRIVATE (Optional)
+                    
+                    // Optional permissions/acl
+                    'permissions' => [
+                        'entity'     => 'allUsers',
+                        'publicAcl'  => \League\Flysystem\GoogleCloudStorage\PortableVisibilityHandler::ACL_PUBLIC_READ,
+                        'privateAcl' => \League\Flysystem\GoogleCloudStorage\PortableVisibilityHandler::ACL_PRIVATE,
+                    ],
+                ],
+            ],
+        ],
+    ],
+];
+```
+FlySystem Docs: [Google Cloud Storage Adapter](https://github.com/thephpleague/flysystem-google-cloud-storage)
 
 ### Upgrades
 
@@ -699,4 +764,3 @@ caused us to also take a new approach which introduces a number of breaking chan
     * Null
     * Azure
     * Dropbox
- 

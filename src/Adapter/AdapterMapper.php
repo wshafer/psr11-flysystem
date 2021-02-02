@@ -1,17 +1,23 @@
 <?php
+
 declare(strict_types=1);
 
-namespace WShafer\PSR11FlySystem\Adaptor;
+namespace Blazon\PSR11FlySystem\Adapter;
 
 use League\Flysystem\FilesystemAdapter;
 use Psr\Container\ContainerInterface;
-use WShafer\PSR11FlySystem\Exception\InvalidConfigException;
+use Blazon\PSR11FlySystem\Exception\InvalidConfigException;
 
-class AdaptorMapper implements MapperInterface
+class AdapterMapper implements MapperInterface
 {
-    /**
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     */
+    /** @var ContainerInterface */
+    protected $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function getFactoryClassName(string $type): ?string
     {
         if (class_exists($type)) {
@@ -25,29 +31,21 @@ class AdaptorMapper implements MapperInterface
             case 'awss3v3':
                 return S3AdapterFactory::class;
             case 'ftp':
-                return FtpAdaptorFactory::class;
+                return FtpAdapterFactory::class;
             case 'googlecloudstorage':
-                return null;
+                return GoogleCloudStorageAdapterFactory::class;
             case 'local':
-                return LocalAdaptorFactory::class;
+                return LocalAdapterFactory::class;
             case 'memory':
             case 'inmemory':
-                return MemoryAdaptorFactory::class;
+                return MemoryAdapterFactory::class;
             case 'sftp':
-                return SftpAdaptorFactory::class;
+                return SftpAdapterFactory::class;
             case 'zip':
-                return ZipArchiveAdaptorFactory::class;
+                return ZipArchiveAdapterFactory::class;
         }
 
         return null;
-    }
-
-    /** @var ContainerInterface */
-    protected $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
     }
 
     public function get(string $type, array $options): FilesystemAdapter
@@ -60,22 +58,32 @@ class AdaptorMapper implements MapperInterface
 
         if (!$className) {
             throw new InvalidConfigException(
-                'Unable to locate a factory by the name of: '.$type
+                'Unable to locate a factory by the name of: ' . $type
+            );
+        }
+
+        if (!in_array(FactoryInterface::class, class_implements($className))) {
+            throw new InvalidConfigException(
+                'Class ' . $className . ' must be an instance of ' . FactoryInterface::class
             );
         }
 
         /** @var FactoryInterface $factory */
+        /** @psalm-suppress InvalidStringClass */
         $factory = new $className();
-
-        if (!$factory instanceof FactoryInterface) {
-            throw new InvalidConfigException(
-                'Class '.$className.' must be an instance of '.FactoryInterface::class
-            );
-        }
 
         if ($factory instanceof ContainerAwareInterface) {
             $factory->setContainer($this->container);
         }
+
+        // @codeCoverageIgnoreStart
+        // Unreachable code in tests
+        if (!is_callable($factory)) {
+            throw new InvalidConfigException(
+                'Class ' . $className . ' must be callable.'
+            );
+        }
+        // @codeCoverageIgnoreEnd
 
         return $factory($options);
     }
